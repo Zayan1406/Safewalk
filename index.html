@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SafeWalk — Safe Walks Together</title>
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+<style>
+/* -----------------------
+   THEME COLORS
+   ----------------------- */
+:root{
+  --isabelline: #F4F0EC;   /* background */
+  --light-blue: #A7C7E7;   /* soft blue for accents */
+  --belgrave: #1A3D7C;     /* primary text / dark blue */
+  --card: #ffffff;
+  --muted: #8b97a6;
+  --accent: #ff5b5b;       /* SOS red */
+  --success: #26c281;
+  --shadow: 0 10px 28px rgba(30,40,60,0.08);
+  --radius: 14px;
+  --glass: rgba(255,255,255,0.7);
+}
+
+/* -----------------------
+   BASIC LAYOUT
+   ----------------------- */
+*{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Helvetica,Arial;margin:0;padding:0}
+body{background:var(--isabelline);color:var(--belgrave);min-height:100vh;display:flex;flex-direction:column}
+header{
+  background:linear-gradient(90deg,var(--belgrave),#2e5aa0);
+  color:white;padding:14px 18px;font-weight:700;font-size:1.15rem;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:var(--shadow)
+}
+#loginBtn{position:absolute;right:14px;top:10px;background:transparent;border:1px solid rgba(255,255,255,0.18);color:white;padding:8px 12px;border-radius:999px;cursor:pointer;font-weight:700}
+
+/* container grid */
+.container{width:100%;max-width:1150px;margin:18px auto;padding:0 16px;display:grid;grid-template-columns:1fr 360px;gap:18px;align-items:start}
+
+/* cards */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
+.input-card{border-radius:12px;padding:12px;background:linear-gradient(180deg,#ffffff,#fbfdff);display:flex;flex-direction:column;gap:10px}
+
+/* inputs & suggestions */
+.row{display:flex;gap:10px}
+.input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid #e6edf3;font-size:0.95rem;background:white;outline:none;color:var(--belgrave)}
+.suggestions-list{position:absolute;left:0;right:0;top:44px;background:var(--card);border-radius:8px;box-shadow:0 10px 28px rgba(20,30,40,0.08);max-height:200px;overflow:auto;z-index:90;border:1px solid #eef3f6}
+.suggestions-list div{padding:10px;cursor:pointer;border-bottom:1px solid #f4f7fa;color:var(--belgrave)}
+.suggestions-list div:hover{background:var(--light-blue);color:white}
+
+/* map */
+.map-wrapper{display:flex;justify-content:center;padding:8px}
+#map{width:100%;max-width:540px;height:540px;border-radius:12px;border:1px solid #e8f0f8;box-shadow:0 12px 40px rgba(20,30,40,0.06);}
+
+/* controls */
+.controls{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.btn{padding:8px 12px;border-radius:999px;border:none;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 6px 18px rgba(20,30,40,0.06)}
+.btn.soft{background:linear-gradient(180deg,#eaf6ff,#d9eeff);color:var(--belgrave)}
+.btn.primary{background:var(--belgrave);color:white}
+.btn.clear{background:#f0f3f7;color:var(--belgrave)}
+.btn.reached{background:var(--success);color:white}
+
+/* right column: profile + emergency */
+.side{display:flex;flex-direction:column;gap:12px;align-items:stretch}
+.profile{padding:14px;border-radius:12px;background:linear-gradient(180deg,#fff,#fbfeff);box-shadow:var(--shadow)}
+.profile h3{margin-bottom:8px}
+.contact-row{display:flex;gap:8px;margin-bottom:8px}
+.contact-row input{flex:1;padding:10px;border-radius:10px;border:1px solid #eaf0f6}
+
+/* ring toggle */
+.ring-row{display:flex;align-items:center;gap:12px;margin-top:6px}
+.toggle{width:56px;height:32px;border-radius:999px;background:#e9f2ff;position:relative;cursor:pointer;transition:all .25s}
+.knob{width:28px;height:28px;background:white;border-radius:50%;position:absolute;top:2px;left:2px;box-shadow:0 6px 18px rgba(20,30,40,0.12);transition:all .25s}
+.toggle.active{background:linear-gradient(90deg,#8bebb0,#26c281)}
+.toggle.active .knob{left:28px}
+
+/* emergency vertical bar */
+.emergency-bar{position:sticky;top:86px;display:flex;flex-direction:column;gap:12px;align-items:center;padding:6px}
+.emergency-button{width:62px;height:62px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;box-shadow:0 12px 28px rgba(0,0,0,0.08);cursor:pointer}
+.emergency-button.sos{background:var(--accent)}
+.emergency-button.audio{background:#f7c844;color:#333}
+.emergency-button.pol{background:var(--light-blue);color:var(--belgrave)}
+.emergency-button.amb{background:var(--success)}
+.emergency-label{font-size:0.8rem;color:var(--muted);margin-top:6px;text-align:center;max-width:80px}
+
+/* history card */
+.history{padding:12px;border-radius:12px;background:linear-gradient(180deg,#fff,#fbfeff);box-shadow:var(--shadow)}
+
+/* audio link/toast area */
+.toast{position:fixed;left:16px;bottom:18px;background:var(--card);padding:10px 12px;border-radius:12px;box-shadow:var(--shadow);border:1px solid #eef3f6;display:none;z-index:120}
+
+/* responsive */
+@media (max-width:980px){
+  .container{grid-template-columns:1fr;gap:12px;padding:12px}
+  #map{max-width:100%;height:76vw}
+  .emergency-bar{position:relative;flex-direction:row;justify-content:center}
+}
+
+.app-header {
+  
+  background-color: #a7c7e7;
+
+
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px 24px;
+  
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #1A3D7C; /* Belgrave blue border */
+}
+
+.logo-text {
+  font-family: 'Poppins', sans-serif;
+  font-size: 22px;
+  color: #070707; /* Belgrave blue text */
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+/* Make sure map stays in the background */
+#map {
+  position: relative;
+  z-index: 1;
+}
+
+/* Header always on top */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #f4f0ec;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  z-index: 1000; /* keeps it above the map */
+}
+
+/* Login Button Styling */
+.login-btn {
+  background-color: #a7c7e7; /* light blue */
+  color: #1a3d7c;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.login-btn:hover {
+  background-color: #88b0d8;
+}
+
+/* Modal overlay */
+.login-modal {
+  display: none;
+  position: fixed;
+  z-index: 2000; /* above map and header */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+  justify-content: center;
+  align-items: center;
+}
+
+/* Modal box */
+.login-modal-content {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 20px;
+  width: 300px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.login-modal-content h2 {
+  color: #1a3d7c;
+  margin-bottom: 15px;
+}
+
+.login-modal-content input {
+  width: 90%;
+  padding: 10px;
+  margin: 8px 0;
+  border: 1px solid #a7c7e7;
+  border-radius: 10px;
+}
+
+.modal-btn {
+  background: #a7c7e7;
+  color: #1a3d7c;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modal-btn:hover {
+  background: #88b0d8;
+}
+
+.switch-text {
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+
+</style>
+</head>
+<body>
+<!-- Header with Logo and Login Button -->
+<header class="app-header">
+  <div class="logo">
+    <img src="logo.png" alt="SafeWalk Logo" class="logo-img" />
+    <h1 class="logo-text">SafeWalk</h1>
+  </div>
+  <button id="loginBtn" class="login-btn">Login / Signup</button>
+</header>
+
+<header>
+  <header class="app-header">
+  <div class="logo">
+    <img src="ICON.jpg" alt="SafeWalk Logo" class="logo-img" />
+    <h1 class="logo-text">SafeWalk  ~ Community night safety companion</h1>
+  </div>
+</header>
+<!-- Login/Signup Modal -->
+<div id="loginModal" class="login-modal">
+  <div class="login-modal-content">
+    <h2>Welcome to SafeWalk</h2>
+    <input type="email" placeholder="Email" />
+    <input type="tel" placeholder="Phone Number" />
+    <input type="password" placeholder="Password" />
+    <button class="modal-btn">Login</button>
+    <p class="switch-text">Don't have an account? <a href="#">Sign up</a></p>
+  </div>
+</div>
+
+  <div>🛡️ SafeWalk — Safe Walks Together</div>
+  <button id="loginBtn" onclick="openLogin()">Login / Signup</button>
+</header>
+
+<div class="container">
+  <!-- LEFT: map + inputs -->
+  <div class="card">
+    <div class="input-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:800;color:var(--belgrave)">Safety Mode</div>
+        <div style="font-size:0.9rem;color:var(--muted)">Hyderabad</div>
+      </div>
+
+      <!-- inputs -->
+      <div class="row" style="position:relative">
+        <div style="flex:1;position:relative">
+          <input id="fromInput" class="input" placeholder="From (type street / shop / lane)">
+          <div id="fromSug" class="suggestions-list" style="display:none"></div>
+        </div>
+        <div style="flex:1;position:relative">
+          <input id="toInput" class="input" placeholder="To (type street / shop / lane)">
+          <div id="toSug" class="suggestions-list" style="display:none"></div>
+        </div>
+      </div>
+
+      <!-- map -->
+      <div class="map-wrapper"><div id="map"></div></div>
+
+      <!-- controls -->
+      <div class="controls">
+        <button class="btn soft" id="startBtn"><i class="fa-solid fa-walking"></i> Start</button>
+        <button class="btn primary" id="shareBtn"><i class="fa-solid fa-share-nodes"></i> Share</button>
+        <button class="btn clear" id="clearBtn"><i class="fa-solid fa-xmark"></i> Clear</button>
+        <button class="btn reached" id="reachedBtn"><i class="fa-solid fa-flag-checkered"></i> Reach</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: profile + emergency + history -->
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div class="profile card">
+      <h3>Your Profile</h3>
+      <div style="font-size:0.9rem;color:var(--muted);margin-bottom:8px">Emergency Contacts (stored locally)</div>
+      <div class="contact-row"><input id="ec1" placeholder="Emergency contact 1 (name + number)"></div>
+      <div class="contact-row"><input id="ec2" placeholder="Emergency contact 2 (name + number)"></div>
+
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+        <button class="btn soft" onclick="saveProfile()">Save</button>
+        <div style="margin-left:auto">
+          <div style="font-size:0.85rem;color:var(--muted);margin-bottom:6px">Connect Ring</div>
+          <div class="ring-row"><div id="ringToggle" class="toggle" onclick="toggleRing()"><div class="knob"></div></div><div id="ringState" style="font-weight:700;color:#666;margin-left:8px">Disconnected</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="history card">
+      <h3>Recent Sessions</h3>
+      <div id="historyList">
+        <!-- history entries will be appended here -->
+      </div>
+    </div>
+
+    <div class="emergency-bar card" style="padding:12px;align-items:center">
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+        <div>
+          <div title="SOS" class="emergency-button sos" id="sosBtn"><i class="fa-solid fa-bell" style="font-size:20px"></i></div>
+          <div class="emergency-label">Emergency Alert</div>
+        </div>
+
+        <div>
+          <div title="Audio Record" class="emergency-button audio" id="audioBtn"><i class="fa-solid fa-microphone" style="font-size:18px"></i></div>
+          <div class="emergency-label">Send Last Audio</div>
+        </div>
+
+        <div>
+          <div title="Police" class="emergency-button pol" id="policeBtn"><i class="fa-solid fa-shield-halved" style="font-size:18px"></i></div>
+          <div class="emergency-label">Notify Police</div>
+        </div>
+
+        <div>
+          <div title="Ambulance" class="emergency-button amb" id="ambulanceBtn"><i class="fa-solid fa-ambulance" style="font-size:18px"></i></div>
+          <div class="emergency-label">Call Ambulance</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- small bottom toast area for audio link -->
+<div id="toast" class="toast"></div>
+
+<!-- audio & siren -->
+<audio id="siren" preload="auto"><source src="https://www.soundjay.com/mechanical/sounds/siren-01.mp3" type="audio/mpeg"></audio>
+
+<!-- login modal -->
+<div id="loginModal" style="position:fixed;inset:0;background:rgba(10,18,26,0.45);display:none;align-items:center;justify-content:center;z-index:130">
+  <div style="background:white;padding:18px;border-radius:12px;max-width:420px;width:94%;box-shadow:var(--shadow)">
+    <h3 style="margin-bottom:8px;color:var(--belgrave)">Login / Signup</h3>
+    <input id="loginEmail" placeholder="Email" style="width:100%;padding:10px;border-radius:10px;border:1px solid #eef3f6;margin-bottom:8px">
+    <input id="loginPhone" placeholder="Phone number" style="width:100%;padding:10px;border-radius:10px;border:1px solid #eef3f6;margin-bottom:8px">
+    <input id="loginPass" placeholder="Password" type="password" style="width:100%;padding:10px;border-radius:10px;border:1px solid #eef3f6;margin-bottom:12px">
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn clear" onclick="closeLogin()">Cancel</button>
+      <button class="btn primary" onclick="saveLogin()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================
+   Map + Nominatim + OSRM Setup
+   ============================ */
+const center = {lat:17.3850, lng:78.4867}; // Hyderabad
+const map = L.map('map', {zoomControl:true}).setView([center.lat, center.lng], 13);
+
+// CARTO Light tiles (minimal, soft)
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CARTO',
+  maxZoom: 19
+}).addTo(map);
+
+/* state */
+let fromMarker=null, toMarker=null, routeLayer=null, fromCoord=null, toCoord=null;
+const fromInput = document.getElementById('fromInput'), toInput = document.getElementById('toInput');
+const fromSug = document.getElementById('fromSug'), toSug = document.getElementById('toSug');
+
+/* helper: reverse geocode (Nominatim) */
+async function reverseGeocode(lat, lon){
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
+    const res = await fetch(url);
+    const j = await res.json();
+    return j.display_name || `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+  } catch(e){ return `${lat.toFixed(5)}, ${lon.toFixed(5)}`; }
+}
+
+/* helper: forward geocode (search) */
+async function nominatimSearch(q){
+  if(!q || q.length < 1) return [];
+  const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=6&countrycodes=in&q=${encodeURIComponent(q)}`;
+  try {
+    const r = await fetch(url, {headers:{'Accept':'application/json'}});
+    if(!r.ok) return [];
+    const j = await r.json();
+    return j;
+  } catch(e) { return []; }
+}
+
+/* suggestions populate */
+function populateSuggestions(items, container, chooseFn){
+  container.innerHTML = '';
+  if(!items || items.length===0){ container.style.display='none'; return; }
+  items.forEach(it=>{
+    const d = document.createElement('div');
+    d.textContent = it.display_name;
+    d.onclick = () => chooseFn(it);
+    container.appendChild(d);
+  });
+  container.style.display = 'block';
+}
+
+/* attach typing autosuggest with debounce */
+let fromTimer=null, toTimer=null;
+fromInput.addEventListener('input', ()=> {
+  clearTimeout(fromTimer);
+  fromTimer = setTimeout(async ()=>{
+    const v = fromInput.value.trim(); if(!v){ fromSug.style.display='none'; return; }
+    const res = await nominatimSearch(v);
+    populateSuggestions(res, fromSug, (item)=>{
+      fromInput.value = item.display_name;
+      fromSug.style.display='none';
+      const lat = parseFloat(item.lat), lon = parseFloat(item.lon);
+      placeMarker('from', {lat, lng: lon}, item.display_name);
+    });
+  }, 300);
+});
+toInput.addEventListener('input', ()=> {
+  clearTimeout(toTimer);
+  toTimer = setTimeout(async ()=>{
+    const v = toInput.value.trim(); if(!v){ toSug.style.display='none'; return; }
+    const res = await nominatimSearch(v);
+    populateSuggestions(res, toSug, (item)=>{
+      toInput.value = item.display_name;
+      toSug.style.display='none';
+      const lat = parseFloat(item.lat), lon = parseFloat(item.lon);
+      placeMarker('to', {lat, lng: lon}, item.display_name);
+    });
+  }, 300);
+});
+
+/* click outside hides suggestions */
+document.addEventListener('click', (e)=>{
+  if(!fromInput.contains(e.target)) fromSug.style.display='none';
+  if(!toInput.contains(e.target)) toSug.style.display='none';
+});
+
+/* place marker helper */
+function placeMarker(which, latlng, label){
+  const m = L.marker([latlng.lat, latlng.lng], {riseOnHover:true});
+  m.bindPopup(label || '').openPopup();
+  if(which === 'from'){
+    if(fromMarker) map.removeLayer(fromMarker);
+    fromMarker = m; fromCoord = {lat: latlng.lat, lng: latlng.lng};
+    fromInput.value = label || fromInput.value;
+  } else {
+    if(toMarker) map.removeLayer(toMarker);
+    toMarker = m; toCoord = {lat: latlng.lat, lng: latlng.lng};
+    toInput.value = label || toInput.value;
+  }
+  m.addTo(map);
+}
+
+/* map click sets From / To using reverse geocode */
+map.on('click', async (e) => {
+  const name = await reverseGeocode(e.latlng.lat, e.latlng.lng);
+  if(!fromCoord){ placeMarker('from', e.latlng, name); }
+  else if(!toCoord){ placeMarker('to', e.latlng, name); }
+  else { clearAll(); placeMarker('from', e.latlng, name); }
+});
+
+/* clear */
+function clearAll(){
+  if(routeLayer){ map.removeLayer(routeLayer); routeLayer = null; }
+  if(fromMarker){ map.removeLayer(fromMarker); fromMarker = null; fromCoord = null; fromInput.value = ''; }
+  if(toMarker){ map.removeLayer(toMarker); toMarker = null; toCoord = null; toInput.value = ''; }
+}
+
+/* OSRM routing (public demo server) */
+async function requestRoute(){
+  if(!fromCoord || !toCoord){ alert('Please set both From and To (click map or type/select).'); return; }
+  const a = `${fromCoord.lng},${fromCoord.lat}`;
+  const b = `${toCoord.lng},${toCoord.lat}`;
+  const url = `https://router.project-osrm.org/route/v1/foot/${a};${b}?overview=full&geometries=geojson`;
+  try {
+    const r = await fetch(url);
+    if(!r.ok) throw new Error('Routing failed');
+    const j = await r.json();
+    if(!j.routes || j.routes.length===0) throw new Error('No route');
+    const coords = j.routes[0].geometry.coordinates.map(c=>[c[1], c[0]]);
+    if(routeLayer) map.removeLayer(routeLayer);
+    routeLayer = L.polyline(coords, {color: '#2b95ff', weight:6, opacity:0.95}).addTo(map);
+    map.fitBounds(routeLayer.getBounds(), {padding:[40,40]});
+    saveHistoryEntry(fromInput.value, toInput.value, Math.round(j.routes[0].distance/60) + 's');
+  } catch(e) {
+    // fallback straight line
+    if(routeLayer) map.removeLayer(routeLayer);
+    routeLayer = L.polyline([[fromCoord.lat, fromCoord.lng],[toCoord.lat,toCoord.lng]], {color:'#2b95ff', weight:4, opacity:0.8, dashArray:'6 6'}).addTo(map);
+    map.fitBounds(routeLayer.getBounds(), {padding:[40,40]});
+    saveHistoryEntry(fromInput.value, toInput.value, '—');
+    console.warn('Routing fallback', e);
+  }
+}
+
+/* controls */
+document.getElementById('startBtn').addEventListener('click', requestRoute);
+document.getElementById('clearBtn').addEventListener('click', clearAll);
+document.getElementById('shareBtn').addEventListener('click', ()=>{ alert('Live location share link created (simulated).'); });
+document.getElementById('reachedBtn').addEventListener('click', ()=>{ alert('You marked yourself as reached.'); });
+
+/* -------------------------
+   Sample POIs for Hyderabad
+   ------------------------- */
+const samplePOI = [
+  {name:'Charminar', lat:17.3616, lon:78.4747},
+  {name:'HITEC City', lat:17.4474, lon:78.3910},
+  {name:'Secunderabad Station', lat:17.4415, lon:78.4982},
+  {name:'Banjara Hills', lat:17.4239, lon:78.4431},
+  {name:'Jubilee Hills', lat:17.4231, lon:78.4203},
+  {name:'Gachibowli', lat:17.4325, lon:78.3928},
+  {name:'LB Nagar', lat:17.3483, lon:78.5366},
+  {name:'Kukatpally', lat:17.4620, lon:78.4079},
+  {name:'Mehdipatnam', lat:17.3850, lon:78.4419},
+  {name:'Ameerpet', lat:17.4376, lon:78.4481},
+  // add more small POIs for street/shop feel (these are examples)
+  {name:'Sarathi Studios', lat:17.4390, lon:78.4095},
+  {name:'Forum Sujana Mall', lat:17.4179, lon:78.3965},
+  {name:'Inorbit Mall', lat:17.4365, lon:78.4026}
+];
+samplePOI.forEach(p=>{
+  L.circleMarker([p.lat,p.lon], {radius:5, fillColor:'#2b95ff', color:'#fff', weight:1, fillOpacity:0.95})
+    .addTo(map).bindTooltip(p.name, {direction:'top'});
+});
+
+/* -------------------------
+   History (local)
+   ------------------------- */
+function saveHistoryEntry(from, to, duration){
+  const list = JSON.parse(localStorage.getItem('safewalk_history')||'[]');
+  const entry = {from, to, date: new Date().toLocaleString(), duration};
+  list.unshift(entry);
+  if(list.length>10) list.pop();
+  localStorage.setItem('safewalk_history', JSON.stringify(list));
+  renderHistory();
+}
+function renderHistory(){
+  const list = JSON.parse(localStorage.getItem('safewalk_history')||'[]');
+  const container = document.getElementById('historyList');
+  container.innerHTML = '';
+  if(list.length===0){ container.innerHTML = '<div style="color:var(--muted)">No past sessions yet.</div>'; return; }
+  list.forEach((e, i)=>{
+    const el = document.createElement('div');
+    el.style.padding = '10px 0'; el.style.borderBottom = '1px solid #f3f6f8';
+    el.innerHTML = `<strong>${e.date}</strong><div style="font-size:0.95rem;color:var(--muted)">${escapeHtml(e.from)} → ${escapeHtml(e.to)} • ${escapeHtml(e.duration)}</div>`;
+    el.style.cursor = 'pointer';
+    el.onclick = ()=> {
+      // center map to from location by geocoding first (Nominatim)
+      nominatimSearch(e.from).then(res=>{
+        if(res && res[0]) {
+          const lat = parseFloat(res[0].lat), lon = parseFloat(res[0].lon);
+          map.setView([lat,lon], 15);
+        }
+      });
+    };
+    container.appendChild(el);
+  });
+}
+function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+renderHistory();
+
+/* -------------------------
+   SOS / emergency / audio
+   ------------------------- */
+const siren = document.getElementById('siren');
+const toast = document.getElementById('toast');
+
+let mediaRecorder = null, audioChunks = [], lastAudioBlob = null, recording = false;
+const audioBtn = document.getElementById('audioBtn');
+
+audioBtn.addEventListener('click', async ()=>{
+  // toggle recording: start -> stop
+  try {
+    if(!recording){
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        lastAudioBlob = new Blob(audioChunks, {type:'audio/webm'});
+        showToastWithAudio(lastAudioBlob);
+      };
+      mediaRecorder.start();
+      recording = true;
+      audioBtn.style.transform = 'scale(0.96)';
+      audioBtn.title = 'Recording... (auto stops in 30s)';
+      // auto-stop 30s
+      setTimeout(()=>{ if(mediaRecorder && mediaRecorder.state==='recording') mediaRecorder.stop(); recording=false; audioBtn.style.transform=''; audioBtn.title='Recorded'; }, 30000);
+      showQuickMessage('Recording started (will auto-stop in 30s)');
+    } else {
+      if(mediaRecorder && mediaRecorder.state==='recording') mediaRecorder.stop();
+      recording = false;
+      audioBtn.style.transform='';
+      audioBtn.title='Recorded';
+      showQuickMessage('Recording stopped');
+    }
+  } catch(err){
+    console.warn('audio error', err);
+    alert('Microphone access denied or not available.');
+  }
+});
+
+function showToastWithAudio(blob){
+  const url = URL.createObjectURL(blob);
+  toast.style.display = 'block';
+  toast.innerHTML = `<div style="display:flex;gap:10px;align-items:center"><strong>Last audio:</strong>
+    <audio controls src="${url}" style="max-width:220px"></audio>
+    <button class="btn soft" onclick="downloadAudio()">Download</button></div>`;
+  // store link for SOS send
+  toast.dataset.audiourl = url;
+  setTimeout(()=>{ /* keep toast until next recorded */ }, 10000);
+}
+function downloadAudio(){
+  const url = toast.dataset.audiourl;
+  if(!url) return alert('No audio available');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'safewalk_audio.webm';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function showQuickMessage(txt){
+  const q = document.createElement('div');
+  q.textContent = txt;
+  q.style.position='fixed'; q.style.right='18px'; q.style.bottom='18px'; q.style.padding='10px 12px'; q.style.background='white'; q.style.border='1px solid #eef3f6'; q.style.borderRadius='8px'; q.style.boxShadow='var(--shadow)'; q.style.zIndex=140;
+  document.body.appendChild(q);
+  setTimeout(()=> q.style.opacity='0', 2200);
+  setTimeout(()=> q.remove(), 2600);
+}
+
+/* emergency actions */
+document.getElementById('sosBtn').addEventListener('click', ()=>{
+  // play siren and show last audio link if exists
+  siren.currentTime = 0; siren.play().catch(()=>{});
+  if(lastAudioBlob || toast.dataset.audiourl){
+    showQuickMessage('SOS sent — last audio attached');
+    // in demo, open the audio in a small popup area (toast already shows audio)
+  } else {
+    showQuickMessage('SOS sent');
+  }
+  // vibrate if supported
+  if(navigator.vibrate) navigator.vibrate([400,200,400]);
+});
+
+document.getElementById('policeBtn').addEventListener('click', ()=>{
+  showQuickMessage('Police notified');
+});
+document.getElementById('ambulanceBtn').addEventListener('click', ()=>{
+  showQuickMessage('Ambulance notified');
+});
+
+/* -------------------------
+   profile, ring, login
+   ------------------------- */
+function saveProfile(){
+  const e1 = document.getElementById('ec1').value.trim();
+  const e2 = document.getElementById('ec2').value.trim();
+  localStorage.setItem('safewalk_ec1', e1);
+  localStorage.setItem('safewalk_ec2', e2);
+  showQuickMessage('Profile saved');
+}
+function toggleRing(){
+  const t = document.getElementById('ringToggle'), s = document.getElementById('ringState');
+  t.classList.toggle('active');
+  s.innerText = t.classList.contains('active') ? 'Connected' : 'Disconnected';
+  s.style.color = t.classList.contains('active') ? 'var(--success)' : '#666';
+}
+
+/* login modal */
+function openLogin(){ document.getElementById('loginModal').style.display='flex'; }
+function closeLogin(){ document.getElementById('loginModal').style.display='none'; }
+function saveLogin(){
+  const e = document.getElementById('loginEmail').value.trim();
+  const p = document.getElementById('loginPhone').value.trim();
+  // store locally for demo
+  localStorage.setItem('safewalk_user', JSON.stringify({email:e, phone:p}));
+  showQuickMessage('Account saved');
+  closeLogin();
+}
+
+  const loginBtn = document.getElementById('loginBtn');
+  const loginModal = document.getElementById('loginModal');
+
+  loginBtn.addEventListener('click', () => {
+    loginModal.style.display = 'flex';
+  });
+
+  // Close modal when clicking outside
+  window.addEventListener('click', (e) => {
+    if (e.target === loginModal) {
+      loginModal.style.display = 'none';
+    }
+  });
+
+
+
+/* small helper: populate history on load */
+renderHistory();
+
+/* =========================
+   Utility for escape and safe display (already above)
+   ========================= */
+</script>
+</body>
+</html>
