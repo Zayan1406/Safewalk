@@ -340,87 +340,170 @@ header{
   </div>
 </header>
 
-<div class="container">
-  <!-- LEFT: map + inputs -->
-  <div class="card">
-    <div class="input-card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
+<!-- HOME PAGE -->
+<div id="homePage" class="page-section active">
+  <div style="max-width:700px;margin:80px auto 100px;padding:0 20px">
+    <h2 style="text-align:center;color:var(--feldgrau);margin-bottom:24px;font-size:1.8rem">WalkMate – Safe Walks Together 🔐</h2>
+
+    <div class="card" style="padding:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
         <div style="font-weight:800;color:var(--feldgrau)">Safety Mode</div>
         <div style="font-size:0.9rem;color:var(--muted)">Hyderabad</div>
       </div>
 
-      <!-- inputs -->
-      <div class="row" style="position:relative">
-        <div style="flex:1;position:relative">
+      <!-- From/To Inputs -->
+      <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+        <div style="flex:1;position:relative;min-width:200px">
           <input id="fromInput" class="input" placeholder="From (type street / shop / lane)">
           <div id="fromSug" class="suggestions-list" style="display:none"></div>
         </div>
-        <div style="flex:1;position:relative">
+        <div style="flex:1;position:relative;min-width:200px">
           <input id="toInput" class="input" placeholder="To (type street / shop / lane)">
           <div id="toSug" class="suggestions-list" style="display:none"></div>
         </div>
       </div>
 
-      <!-- map -->
+      <!-- Map -->
       <div class="map-wrapper"><div id="map"></div></div>
 
-      <!-- controls -->
+      <!-- Walk Timer (hidden by default) -->
+      <div id="walkTimer" style="display:none;text-align:center;margin:12px 0;font-size:1.5rem;font-weight:700;color:var(--feldgrau)">00:00</div>
+
+      <!-- Action Buttons -->
       <div class="controls">
-        <button class="btn soft" id="startBtn"><i class="fa-solid fa-walking"></i> Start</button>
-        <button class="btn primary" id="shareBtn"><i class="fa-solid fa-share-nodes"></i> Share</button>
-        <button class="btn clear" id="clearBtn"><i class="fa-solid fa-xmark"></i> Clear</button>
-        <button class="btn reached" id="reachedBtn"><i class="fa-solid fa-flag-checkered"></i> Reach</button>
+        <button class="btn soft" id="startBtn"><i class="fa-solid fa-person-walking"></i> Start Walk</button>
+        <button class="btn" id="sosBtn" style="background:var(--accent);color:white"><i class="fa-solid fa-bell"></i> SOS</button>
+        <button class="btn primary" id="shareBtn"><i class="fa-solid fa-share-nodes"></i> Share Location</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- RIGHT: profile + emergency + history -->
-  <div style="display:flex;flex-direction:column;gap:12px">
-    <div class="profile card">
-      <h3>Your Profile</h3>
-      <div style="font-size:0.9rem;color:var(--muted);margin-bottom:8px">Emergency Contacts (stored locally)</div>
-      <div class="contact-row"><input id="ec1" placeholder="Emergency contact 1 (name + number)"></div>
-      <div class="contact-row"><input id="ec2" placeholder="Emergency contact 2 (name + number)"></div>
+<!-- HISTORY PAGE -->
+<div id="historyPage" class="page-section">
+  <div style="max-width:800px;margin:80px auto 100px;padding:0 20px">
+    <h2 style="text-align:center;color:var(--feldgrau);margin-bottom:24px">Walk History</h2>
+    <div id="historyList" class="card" style="padding:20px">
+      <!-- history entries will be appended here -->
+    </div>
+  </div>
+</div>
 
-      <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
-        <button class="btn soft" onclick="saveProfile()">Save</button>
-        <div style="margin-left:auto">
-          <div style="font-size:0.85rem;color:var(--muted);margin-bottom:6px">Connect Ring</div>
-          <div class="ring-row"><div id="ringToggle" class="toggle" onclick="toggleRing()"><div class="knob"></div></div><div id="ringState" style="font-weight:700;color:#666;margin-left:8px">Disconnected</div></div>
+<!-- PROFILE PAGE -->
+<div id="profilePage" class="page-section">
+  <div style="max-width:700px;margin:80px auto 100px;padding:0 20px">
+    <h2 style="text-align:center;color:var(--feldgrau);margin-bottom:24px">Your Profile</h2>
+
+    <div class="card" style="padding:24px">
+      <!-- Profile Picture -->
+      <div style="text-align:center;margin-bottom:24px">
+        <div style="width:120px;height:120px;border-radius:50%;background:#e8f0f8;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid var(--light-blue)">
+          <img id="profilePic" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none">
+          <i id="profilePlaceholder" class="fa-solid fa-user" style="font-size:50px;color:var(--muted)"></i>
+        </div>
+        <input type="file" id="profilePicInput" accept="image/*" style="display:none">
+        <button class="btn soft" onclick="document.getElementById('profilePicInput').click()">Change Photo</button>
+      </div>
+
+      <!-- User Info -->
+      <div style="margin-bottom:20px">
+        <label style="display:block;font-weight:600;color:var(--feldgrau);margin-bottom:6px">Name</label>
+        <input id="userName" class="input" placeholder="Enter your name" disabled>
+      </div>
+      <div style="margin-bottom:20px">
+        <label style="display:block;font-weight:600;color:var(--feldgrau);margin-bottom:6px">Email</label>
+        <input id="userEmail" class="input" placeholder="Enter your email" disabled>
+      </div>
+
+      <!-- Emergency Contacts -->
+      <h3 style="color:var(--feldgrau);margin:24px 0 12px">Emergency Contacts</h3>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-weight:600;color:var(--feldgrau);margin-bottom:6px;font-size:0.9rem">Emergency Contact 1</label>
+        <input id="ec1" class="input" placeholder="Name, Phone Number" disabled>
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-weight:600;color:var(--feldgrau);margin-bottom:6px;font-size:0.9rem">Emergency Contact 2</label>
+        <input id="ec2" class="input" placeholder="Name, Phone Number" disabled>
+      </div>
+      <div style="margin-bottom:20px">
+        <label style="display:block;font-weight:600;color:var(--feldgrau);margin-bottom:6px;font-size:0.9rem">Emergency Contact 3</label>
+        <input id="ec3" class="input" placeholder="Name, Phone Number" disabled>
+      </div>
+
+      <button id="editProfileBtn" class="btn primary" onclick="toggleEditProfile()">Edit Contacts</button>
+
+      <!-- Ring Connectivity -->
+      <div style="margin-top:32px;padding-top:24px;border-top:1px solid #e8f0f8">
+        <h3 style="color:var(--feldgrau);margin-bottom:8px">Safety Ring</h3>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px">Future hardware integration ready</p>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div id="ringToggle" class="toggle" onclick="toggleRing()"><div class="knob"></div></div>
+          <div id="ringState" style="font-weight:700;color:#666">Disconnected</div>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="history card">
-      <h3>Recent Sessions</h3>
-      <div id="historyList">
-        <!-- history entries will be appended here -->
+<!-- SAFETY TIPS PAGE -->
+<div id="safetyTipsPage" class="page-section">
+  <div style="max-width:1000px;margin:80px auto 100px;padding:0 20px">
+    <h2 style="text-align:center;color:var(--feldgrau);margin-bottom:32px">Safety Tips for Night Walks</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
+      <!-- Tip Cards -->
+      <div class="card safety-tip-card" style="padding:20px;animation:cardEnter 0.5s ease-out forwards">
+        <div style="font-size:2.5rem;margin-bottom:12px">🔦</div>
+        <h3 style="color:var(--feldgrau);margin-bottom:10px">Stay in Well-Lit Areas</h3>
+        <p style="color:var(--muted);line-height:1.6">Choose routes with good street lighting. Avoid shortcuts through dark alleys or isolated areas. Well-lit paths make you more visible and safer.</p>
+      </div>
+
+      <div class="card safety-tip-card" style="padding:20px;animation:cardEnter 0.5s ease-out 0.1s forwards;opacity:0">
+        <div style="font-size:2.5rem;margin-bottom:12px">📱</div>
+        <h3 style="color:var(--feldgrau);margin-bottom:10px">Share Your Location</h3>
+        <p style="color:var(--muted);line-height:1.6">Always let someone know where you're going and when you expect to arrive. Use location sharing features to keep trusted contacts informed.</p>
+      </div>
+
+      <div class="card safety-tip-card" style="padding:20px;animation:cardEnter 0.5s ease-out 0.2s forwards;opacity:0">
+        <div style="font-size:2.5rem;margin-bottom:12px">👁️</div>
+        <h3 style="color:var(--feldgrau);margin-bottom:10px">Walk with Confidence</h3>
+        <p style="color:var(--muted);line-height:1.6">Stay alert and aware of your surroundings. Walk with purpose and confidence. Avoid distractions like phone use while walking.</p>
+      </div>
+
+      <div class="card safety-tip-card" style="padding:20px;animation:cardEnter 0.5s ease-out 0.3s forwards;opacity:0">
+        <div style="font-size:2.5rem;margin-bottom:12px">💡</div>
+        <h3 style="color:var(--feldgrau);margin-bottom:10px">Trust Your Instincts</h3>
+        <p style="color:var(--muted);line-height:1.6">If something feels wrong, trust your gut. Change your route, enter a busy place, or call someone. Your instincts are your best defense.</p>
+      </div>
+
+      <div class="card safety-tip-card" style="padding:20px;animation:cardEnter 0.5s ease-out 0.4s forwards;opacity:0">
+        <div style="font-size:2.5rem;margin-bottom:12px">🚨</div>
+        <h3 style="color:var(--feldgrau);margin-bottom:10px">Emergency Contacts Ready</h3>
+        <p style="color:var(--muted);line-height:1.6">Keep emergency numbers saved and easily accessible. Set up quick-dial contacts for trusted friends and family members.</p>
+      </div>
+
+      <div class="card safety-tip-card" style="padding:20px;animation:cardEnter 0.5s ease-out 0.5s forwards;opacity:0">
+        <div style="font-size:2.5rem;margin-bottom:12px">👥</div>
+        <h3 style="color:var(--feldgrau);margin-bottom:10px">Stay Connected</h3>
+        <p style="color:var(--muted);line-height:1.6">Walking with a companion is always safer. If alone, use safety apps or community watch features to stay connected.</p>
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="emergency-bar card" style="padding:12px;align-items:center">
-      <div style="display:flex;flex-direction:column;gap:8px;align-items:center">
-        <div>
-          <div title="SOS" class="emergency-button sos" id="sosBtn"><i class="fa-solid fa-bell" style="font-size:20px"></i></div>
-          <div class="emergency-label">Emergency Alert</div>
-        </div>
-
-        <div>
-          <div title="Audio Record" class="emergency-button audio" id="audioBtn"><i class="fa-solid fa-microphone" style="font-size:18px"></i></div>
-          <div class="emergency-label">Send Last Audio</div>
-        </div>
-
-        <div>
-          <div title="Police" class="emergency-button pol" id="policeBtn"><i class="fa-solid fa-shield-halved" style="font-size:18px"></i></div>
-          <div class="emergency-label">Notify Police</div>
-        </div>
-
-        <div>
-          <div title="Ambulance" class="emergency-button amb" id="ambulanceBtn"><i class="fa-solid fa-ambulance" style="font-size:18px"></i></div>
-          <div class="emergency-label">Call Ambulance</div>
-        </div>
-      </div>
-    </div>
+<!-- BOTTOM NAVIGATION BAR -->
+<div class="bottom-nav">
+  <div class="nav-item active" data-page="homePage">
+    <i class="fa-solid fa-house"></i>
+    <span>Home</span>
+  </div>
+  <div class="nav-item" data-page="historyPage">
+    <i class="fa-solid fa-clock-rotate-left"></i>
+    <span>History</span>
+  </div>
+  <div class="nav-item" data-page="profilePage">
+    <i class="fa-solid fa-user"></i>
+    <span>Profile</span>
   </div>
 </div>
 
