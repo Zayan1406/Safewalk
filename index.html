@@ -786,10 +786,14 @@ async function requestRoute(){
 }
 
 /* controls */
-document.getElementById('startBtn').addEventListener('click', requestRoute);
-document.getElementById('clearBtn').addEventListener('click', clearAll);
-document.getElementById('shareBtn').addEventListener('click', ()=>{ alert('Live location share link created (simulated).'); });
-document.getElementById('reachedBtn').addEventListener('click', ()=>{ alert('You marked yourself as reached.'); });
+document.getElementById('startBtn').addEventListener('click', () => {
+  if(!walkActive) {
+    requestRoute();
+  } else {
+    endWalkTracking();
+  }
+});
+document.getElementById('shareBtn').addEventListener('click', ()=>{ showQuickMessage('Live location share link created (simulated).'); });
 
 /* -------------------------
    Sample POIs for Hyderabad
