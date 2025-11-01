@@ -522,17 +522,36 @@ body{padding-top:70px}
 <!-- audio & siren -->
 <audio id="siren" preload="auto"><source src="https://www.soundjay.com/mechanical/sounds/siren-01.mp3" type="audio/mpeg"></audio>
 
-<!-- login modal -->
-<div id="loginModal" style="position:fixed;inset:0;background:rgba(10,18,26,0.45);display:none;align-items:center;justify-content:center;z-index:130">
-  <div style="background:white;padding:18px;border-radius:12px;max-width:420px;width:94%;box-shadow:var(--shadow)">
-    <h3 style="margin-bottom:8px;color:var(--feldgrau)">Login / Signup</h3>
-    <input id="loginEmail" placeholder="Email" style="width:100%;padding:10px;border-radius:10px;border:1px solid #eef3f6;margin-bottom:8px">
-    <input id="loginPhone" placeholder="Phone number" style="width:100%;padding:10px;border-radius:10px;border:1px solid #eef3f6;margin-bottom:8px">
-    <input id="loginPass" placeholder="Password" type="password" style="width:100%;padding:10px;border-radius:10px;border:1px solid #eef3f6;margin-bottom:12px">
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button class="btn clear" onclick="closeLogin()">Cancel</button>
-      <button class="btn primary" onclick="saveLogin()">Save</button>
+<!-- Login/Signup Modal -->
+<div id="loginModal" style="position:fixed;inset:0;background:rgba(10,18,26,0.45);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:2000">
+  <div style="background:white;padding:28px;border-radius:16px;max-width:420px;width:94%;box-shadow:var(--shadow);animation:fadeIn 0.3s ease-out">
+    <h3 id="modalTitle" style="margin-bottom:18px;color:var(--feldgrau);font-size:1.5rem;text-align:center">Login to WalkMate</h3>
+
+    <div id="nameField" style="display:none;margin-bottom:12px">
+      <input id="loginName" placeholder="Enter your name" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--feldgrau);box-sizing:border-box">
     </div>
+
+    <div style="margin-bottom:12px">
+      <input id="loginEmail" placeholder="Enter your email" type="email" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--feldgrau);box-sizing:border-box">
+    </div>
+
+    <div style="margin-bottom:16px">
+      <input id="loginPass" placeholder="Enter your password" type="password" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--feldgrau);box-sizing:border-box">
+    </div>
+
+    <button id="authSubmitBtn" class="btn primary" onclick="handleAuth()" style="width:100%;justify-content:center;background:var(--light-blue);color:var(--feldgrau);margin-bottom:12px">Login</button>
+
+    <p id="switchText" style="text-align:center;font-size:0.9rem;color:var(--muted);cursor:pointer" onclick="switchAuthMode()">Don't have an account? <span style="color:var(--light-blue);font-weight:600">Sign Up</span></p>
+  </div>
+</div>
+
+<!-- SOS Modal -->
+<div id="sosModal" style="position:fixed;inset:0;background:rgba(10,18,26,0.5);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:2000">
+  <div style="background:white;padding:32px;border-radius:16px;max-width:400px;width:90%;box-shadow:var(--shadow);text-align:center;animation:fadeIn 0.3s ease-out">
+    <div style="font-size:3rem;margin-bottom:16px">🚨</div>
+    <h3 style="color:var(--feldgrau);margin-bottom:12px;font-size:1.4rem">SOS Sent!</h3>
+    <p id="sosMessage" style="color:var(--muted);margin-bottom:20px;line-height:1.6"></p>
+    <button class="btn primary" onclick="closeSosModal()" style="background:var(--accent);color:white">OK</button>
   </div>
 </div>
 
