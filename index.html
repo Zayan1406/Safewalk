@@ -877,66 +877,9 @@ function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<',
 renderHistory();
 
 /* -------------------------
-   SOS / emergency / audio
+   SOS / emergency
    ------------------------- */
 const siren = document.getElementById('siren');
-const toast = document.getElementById('toast');
-
-let mediaRecorder = null, audioChunks = [], lastAudioBlob = null, recording = false;
-const audioBtn = document.getElementById('audioBtn');
-
-audioBtn.addEventListener('click', async ()=>{
-  // toggle recording: start -> stop
-  try {
-    if(!recording){
-      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-      mediaRecorder = new MediaRecorder(stream);
-      audioChunks = [];
-      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-      mediaRecorder.onstop = () => {
-        lastAudioBlob = new Blob(audioChunks, {type:'audio/webm'});
-        showToastWithAudio(lastAudioBlob);
-      };
-      mediaRecorder.start();
-      recording = true;
-      audioBtn.style.transform = 'scale(0.96)';
-      audioBtn.title = 'Recording... (auto stops in 30s)';
-      // auto-stop 30s
-      setTimeout(()=>{ if(mediaRecorder && mediaRecorder.state==='recording') mediaRecorder.stop(); recording=false; audioBtn.style.transform=''; audioBtn.title='Recorded'; }, 30000);
-      showQuickMessage('Recording started (will auto-stop in 30s)');
-    } else {
-      if(mediaRecorder && mediaRecorder.state==='recording') mediaRecorder.stop();
-      recording = false;
-      audioBtn.style.transform='';
-      audioBtn.title='Recorded';
-      showQuickMessage('Recording stopped');
-    }
-  } catch(err){
-    console.warn('audio error', err);
-    alert('Microphone access denied or not available.');
-  }
-});
-
-function showToastWithAudio(blob){
-  const url = URL.createObjectURL(blob);
-  toast.style.display = 'block';
-  toast.innerHTML = `<div style="display:flex;gap:10px;align-items:center"><strong>Last audio:</strong>
-    <audio controls src="${url}" style="max-width:220px"></audio>
-    <button class="btn soft" onclick="downloadAudio()">Download</button></div>`;
-  // store link for SOS send
-  toast.dataset.audiourl = url;
-  setTimeout(()=>{ /* keep toast until next recorded */ }, 10000);
-}
-function downloadAudio(){
-  const url = toast.dataset.audiourl;
-  if(!url) return alert('No audio available');
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'safewalk_audio.webm';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-}
 
 function showQuickMessage(txt){
   const q = document.createElement('div');
