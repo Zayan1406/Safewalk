@@ -944,52 +944,218 @@ document.getElementById('ambulanceBtn').addEventListener('click', ()=>{
 });
 
 /* -------------------------
-   profile, ring, login
+   PROFILE MANAGEMENT
    ------------------------- */
-function saveProfile(){
-  const e1 = document.getElementById('ec1').value.trim();
-  const e2 = document.getElementById('ec2').value.trim();
-  localStorage.setItem('safewalk_ec1', e1);
-  localStorage.setItem('safewalk_ec2', e2);
-  showQuickMessage('Profile saved');
-}
-function toggleRing(){
-  const t = document.getElementById('ringToggle'), s = document.getElementById('ringState');
-  t.classList.toggle('active');
-  s.innerText = t.classList.contains('active') ? 'Connected' : 'Disconnected';
-  s.style.color = t.classList.contains('active') ? 'var(--success)' : '#666';
-}
+let profileEditMode = false;
 
-/* login modal */
-function openLogin(){ document.getElementById('loginModal').style.display='flex'; }
-function closeLogin(){ document.getElementById('loginModal').style.display='none'; }
-function saveLogin(){
-  const e = document.getElementById('loginEmail').value.trim();
-  const p = document.getElementById('loginPhone').value.trim();
-  // store locally for demo
-  localStorage.setItem('safewalk_user', JSON.stringify({email:e, phone:p}));
-  showQuickMessage('Account saved');
-  closeLogin();
+function loadProfileData() {
+  document.getElementById('userName').value = localStorage.getItem('walkmate_user_name') || '';
+  document.getElementById('userEmail').value = localStorage.getItem('walkmate_user_email') || '';
+  document.getElementById('ec1').value = localStorage.getItem('safewalk_ec1') || '';
+  document.getElementById('ec2').value = localStorage.getItem('safewalk_ec2') || '';
+  document.getElementById('ec3').value = localStorage.getItem('safewalk_ec3') || '';
+
+  const picData = localStorage.getItem('walkmate_profile_pic');
+  if(picData) {
+    document.getElementById('profilePic').src = picData;
+    document.getElementById('profilePic').style.display = 'block';
+    document.getElementById('profilePlaceholder').style.display = 'none';
+  }
 }
 
-  const loginBtn = document.getElementById('loginBtn');
-  const loginModal = document.getElementById('loginModal');
+function toggleEditProfile() {
+  profileEditMode = !profileEditMode;
+  const btn = document.getElementById('editProfileBtn');
 
-  loginBtn.addEventListener('click', () => {
-    loginModal.style.display = 'flex';
-  });
+  if(profileEditMode) {
+    document.getElementById('userName').disabled = false;
+    document.getElementById('userEmail').disabled = false;
+    document.getElementById('ec1').disabled = false;
+    document.getElementById('ec2').disabled = false;
+    document.getElementById('ec3').disabled = false;
+    btn.textContent = 'Save';
+  } else {
+    // Save all fields
+    localStorage.setItem('walkmate_user_name', document.getElementById('userName').value.trim());
+    localStorage.setItem('walkmate_user_email', document.getElementById('userEmail').value.trim());
+    localStorage.setItem('safewalk_ec1', document.getElementById('ec1').value.trim());
+    localStorage.setItem('safewalk_ec2', document.getElementById('ec2').value.trim());
+    localStorage.setItem('safewalk_ec3', document.getElementById('ec3').value.trim());
 
-  // Close modal when clicking outside
-  window.addEventListener('click', (e) => {
-    if (e.target === loginModal) {
-      loginModal.style.display = 'none';
+    document.getElementById('userName').disabled = true;
+    document.getElementById('userEmail').disabled = true;
+    document.getElementById('ec1').disabled = true;
+    document.getElementById('ec2').disabled = true;
+    document.getElementById('ec3').disabled = true;
+    btn.textContent = 'Edit Contacts';
+    showQuickMessage('Profile saved');
+  }
+}
+
+// Profile picture upload
+document.getElementById('profilePicInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const dataUrl = ev.target.result;
+    localStorage.setItem('walkmate_profile_pic', dataUrl);
+    document.getElementById('profilePic').src = dataUrl;
+    document.getElementById('profilePic').style.display = 'block';
+    document.getElementById('profilePlaceholder').style.display = 'none';
+    showQuickMessage('Profile picture updated');
+  };
+  reader.readAsDataURL(file);
+});
+
+/* -------------------------
+   RING CONNECTIVITY
+   ------------------------- */
+let ringConnecting = false;
+
+function toggleRing() {
+  const toggle = document.getElementById('ringToggle');
+  const state = document.getElementById('ringState');
+
+  if(toggle.classList.contains('active')) {
+    // Disconnect
+    toggle.classList.remove('active');
+    state.textContent = 'Disconnected';
+    state.style.color = '#666';
+    localStorage.setItem('walkmate_ring_connected', 'false');
+  } else {
+    // Connect with animation
+    if(ringConnecting) return;
+    ringConnecting = true;
+
+    state.textContent = 'Connecting...';
+    state.style.color = 'var(--light-blue)';
+
+    setTimeout(() => {
+      toggle.classList.add('active');
+      state.textContent = 'Connected';
+      state.style.color = 'var(--success)';
+      ringConnecting = false;
+      localStorage.setItem('walkmate_ring_connected', 'true');
+      showQuickMessage('Ring connected');
+    }, 1500);
+  }
+}
+
+// Load ring state on page load
+if(localStorage.getItem('walkmate_ring_connected') === 'true') {
+  document.getElementById('ringToggle').classList.add('active');
+  document.getElementById('ringState').textContent = 'Connected';
+  document.getElementById('ringState').style.color = 'var(--success)';
+}
+
+/* -------------------------
+   ENHANCED SOS
+   ------------------------- */
+function showSosModal() {
+  const ec1 = localStorage.getItem('safewalk_ec1');
+  const ec2 = localStorage.getItem('safewalk_ec2');
+  const ec3 = localStorage.getItem('safewalk_ec3');
+
+  let contactsList = '';
+  if(ec1) contactsList += ec1.split(',')[0] + ', ';
+  if(ec2) contactsList += ec2.split(',')[0] + ', ';
+  if(ec3) contactsList += ec3.split(',')[0];
+  contactsList = contactsList.replace(/,\s*$/, '');
+
+  const message = contactsList
+    ? `Your emergency contacts have been alerted with your location:<br><strong>${contactsList}</strong>`
+    : 'No emergency contacts set. Add them in your Profile.';
+
+  document.getElementById('sosMessage').innerHTML = message;
+  document.getElementById('sosModal').style.display = 'flex';
+  setTimeout(() => closeSosModal(), 5000);
+}
+
+function closeSosModal() {
+  document.getElementById('sosModal').style.display = 'none';
+}
+
+/* -------------------------
+   ACTIVE WALK TRACKING
+   ------------------------- */
+let walkActive = false;
+let walkStartTime = null;
+let timerInterval = null;
+let gpsInterval = null;
+let userMarker = null;
+let routeCoords = [];
+let currentCoordIndex = 0;
+
+function startWalkTracking() {
+  if(!routeLayer) {
+    alert('Please set a route first by clicking Start Walk');
+    return;
+  }
+
+  walkActive = true;
+  walkStartTime = Date.now();
+  document.getElementById('startBtn').innerHTML = '<i class="fa-solid fa-flag"></i> End Walk';
+  document.getElementById('walkTimer').style.display = 'block';
+
+  // Get route coordinates
+  routeCoords = routeLayer.getLatLngs();
+  currentCoordIndex = 0;
+
+  // Place user marker at start
+  if(userMarker) map.removeLayer(userMarker);
+  userMarker = L.marker(routeCoords[0], {
+    icon: L.divIcon({
+      className: 'user-marker',
+      html: '<div style="width:16px;height:16px;background:#2b95ff;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3)"></div>'
+    })
+  }).addTo(map);
+
+  // Timer update
+  timerInterval = setInterval(() => {
+    const elapsed = Date.now() - walkStartTime;
+    const minutes = Math.floor(elapsed / 60000);
+    const seconds = Math.floor((elapsed % 60000) / 1000);
+    document.getElementById('walkTimer').textContent = `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+  }, 1000);
+
+  // GPS simulation
+  const updateInterval = (routeCoords.length > 0) ? (12 * 60 * 1000) / routeCoords.length : 3000;
+  gpsInterval = setInterval(() => {
+    if(currentCoordIndex < routeCoords.length - 1) {
+      currentCoordIndex++;
+      userMarker.setLatLng(routeCoords[currentCoordIndex]);
+      map.panTo(routeCoords[currentCoordIndex]);
+    } else {
+      endWalkTracking(true);
     }
-  });
+  }, updateInterval);
+}
 
+function endWalkTracking(completed = false) {
+  if(!walkActive) return;
 
+  clearInterval(timerInterval);
+  clearInterval(gpsInterval);
+
+  const elapsed = Date.now() - walkStartTime;
+  const duration = Math.floor(elapsed / 1000) + 's';
+
+  if(completed) {
+    showQuickMessage('You\'ve arrived! Walk completed.');
+  }
+
+  walkActive = false;
+  document.getElementById('startBtn').innerHTML = '<i class="fa-solid fa-person-walking"></i> Start Walk';
+  document.getElementById('walkTimer').style.display = 'none';
+
+  // Keep walk in history (already saved by requestRoute)
+}
 
 /* small helper: populate history on load */
 renderHistory();
+loadProfileData();
 
 /* =========================
    Utility for escape and safe display (already above)
