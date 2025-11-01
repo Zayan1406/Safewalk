@@ -840,14 +840,29 @@ function renderHistory(){
   const list = JSON.parse(localStorage.getItem('safewalk_history')||'[]');
   const container = document.getElementById('historyList');
   container.innerHTML = '';
-  if(list.length===0){ container.innerHTML = '<div style="color:var(--muted)">No past sessions yet.</div>'; return; }
+  if(list.length===0){
+    container.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px 20px">No walks yet. Start your first safe walk from the Home page!</div>';
+    return;
+  }
   list.forEach((e, i)=>{
     const el = document.createElement('div');
-    el.style.padding = '10px 0'; el.style.borderBottom = '1px solid #f3f6f8';
-    el.innerHTML = `<strong>${e.date}</strong><div style="font-size:0.95rem;color:var(--muted)">${escapeHtml(e.from)} → ${escapeHtml(e.to)} • ${escapeHtml(e.duration)}</div>`;
+    el.style.padding = '16px 0';
+    el.style.borderBottom = '1px solid #e8f0f8';
     el.style.cursor = 'pointer';
+    el.style.transition = 'all 0.2s ease-out';
+
+    const dateTime = `<div style="font-weight:700;color:var(--feldgrau);margin-bottom:6px;font-size:1rem">${e.date}</div>`;
+    const route = `<div style="font-size:0.95rem;color:var(--muted);line-height:1.5">${escapeHtml(e.from)} → ${escapeHtml(e.to)}</div>`;
+    const duration = `<div style="font-size:0.9rem;color:var(--light-blue);font-weight:600;margin-top:4px">Duration: ${escapeHtml(e.duration)}</div>`;
+
+    el.innerHTML = dateTime + route + duration;
+
+    el.onmouseover = () => { el.style.background = '#f8fafb'; el.style.paddingLeft = '12px'; };
+    el.onmouseout = () => { el.style.background = 'transparent'; el.style.paddingLeft = '0'; };
+
     el.onclick = ()=> {
-      // center map to from location by geocoding first (Nominatim)
+      // Switch to home page and center map
+      switchPage('homePage');
       nominatimSearch(e.from).then(res=>{
         if(res && res[0]) {
           const lat = parseFloat(res[0].lat), lon = parseFloat(res[0].lon);
