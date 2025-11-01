@@ -557,6 +557,91 @@ body{padding-top:70px}
 
 <script>
 /* ============================
+   PAGE NAVIGATION
+   ============================ */
+let currentAuthMode = 'login'; // 'login' or 'signup'
+
+// Page switching
+function switchPage(pageId) {
+  document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+
+  // Load data when switching to certain pages
+  if(pageId === 'profilePage') loadProfileData();
+  if(pageId === 'historyPage') renderHistory();
+}
+
+// Nav bar click handlers
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    switchPage(item.dataset.page);
+  });
+});
+
+// Safety Tips link handler
+document.getElementById('safetyTipsLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchPage('safetyTipsPage');
+});
+
+/* ============================
+   AUTH MODAL (Login/Signup)
+   ============================ */
+function openLogin() {
+  currentAuthMode = 'login';
+  document.getElementById('modalTitle').textContent = 'Login to WalkMate';
+  document.getElementById('nameField').style.display = 'none';
+  document.getElementById('authSubmitBtn').textContent = 'Login';
+  document.getElementById('switchText').innerHTML = 'Don\'t have an account? <span style="color:var(--light-blue);font-weight:600">Sign Up</span>';
+  document.getElementById('loginModal').style.display = 'flex';
+}
+
+function openSignup() {
+  currentAuthMode = 'signup';
+  document.getElementById('modalTitle').textContent = 'Sign Up for WalkMate';
+  document.getElementById('nameField').style.display = 'block';
+  document.getElementById('authSubmitBtn').textContent = 'Sign Up';
+  document.getElementById('switchText').innerHTML = 'Already have an account? <span style="color:var(--light-blue);font-weight:600">Login</span>';
+  document.getElementById('loginModal').style.display = 'flex';
+}
+
+function switchAuthMode() {
+  if(currentAuthMode === 'login') openSignup();
+  else openLogin();
+}
+
+function closeLogin() {
+  document.getElementById('loginModal').style.display = 'none';
+}
+
+function handleAuth() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const name = document.getElementById('loginName').value.trim();
+
+  if(currentAuthMode === 'signup' && name) {
+    localStorage.setItem('walkmate_user_name', name);
+    localStorage.setItem('walkmate_user_email', email);
+    showQuickMessage('Account created! Welcome to WalkMate!');
+  } else {
+    localStorage.setItem('walkmate_user_email', email);
+    showQuickMessage('Welcome back!');
+  }
+
+  setTimeout(() => closeLogin(), 1000);
+}
+
+// Header button handlers
+document.getElementById('loginBtn').addEventListener('click', openLogin);
+document.getElementById('signupBtn').addEventListener('click', openSignup);
+
+// Close modal on backdrop click
+document.getElementById('loginModal').addEventListener('click', (e) => {
+  if(e.target.id === 'loginModal') closeLogin();
+});
+
+/* ============================
    Map + Nominatim + OSRM Setup
    ============================ */
 const center = {lat:17.3850, lng:78.4867}; // Hyderabad
