@@ -775,6 +775,9 @@ async function requestRoute(){
     routeLayer = L.polyline(coords, {color: '#2b95ff', weight:6, opacity:0.95}).addTo(map);
     map.fitBounds(routeLayer.getBounds(), {padding:[40,40]});
     saveHistoryEntry(fromInput.value, toInput.value, Math.round(j.routes[0].distance/60) + 's');
+
+    // Start walk tracking
+    setTimeout(() => startWalkTracking(), 500);
   } catch(e) {
     // fallback straight line
     if(routeLayer) map.removeLayer(routeLayer);
@@ -782,6 +785,9 @@ async function requestRoute(){
     map.fitBounds(routeLayer.getBounds(), {padding:[40,40]});
     saveHistoryEntry(fromInput.value, toInput.value, '—');
     console.warn('Routing fallback', e);
+
+    // Start walk tracking even with fallback
+    setTimeout(() => startWalkTracking(), 500);
   }
 }
 
