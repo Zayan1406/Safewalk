@@ -34,7 +34,7 @@
 *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Helvetica,Arial;margin:0;padding:0}
 body{background:var(--isabelline);color:var(--feldgrau);min-height:100vh;display:flex;flex-direction:column}
 header{
-  background:linear-gradient(90deg,var(--belgrave),#2e5aa0);
+  background:linear-gradient(90deg,var(--feldgrau),#2e5aa0);
   color:white;padding:14px 18px;font-weight:700;font-size:1.15rem;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:var(--shadow)
 }
 #loginBtn{position:absolute;right:14px;top:10px;background:transparent;border:1px solid rgba(255,255,255,0.18);color:white;padding:8px 12px;border-radius:999px;cursor:pointer;font-weight:700}
@@ -48,9 +48,9 @@ header{
 
 /* inputs & suggestions */
 .row{display:flex;gap:10px}
-.input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid #e6edf3;font-size:0.95rem;background:white;outline:none;color:var(--belgrave)}
+.input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid #e6edf3;font-size:0.95rem;background:white;outline:none;color:var(--feldgrau)}
 .suggestions-list{position:absolute;left:0;right:0;top:44px;background:var(--card);border-radius:8px;box-shadow:0 10px 28px rgba(20,30,40,0.08);max-height:200px;overflow:auto;z-index:90;border:1px solid #eef3f6}
-.suggestions-list div{padding:10px;cursor:pointer;border-bottom:1px solid #f4f7fa;color:var(--belgrave)}
+.suggestions-list div{padding:10px;cursor:pointer;border-bottom:1px solid #f4f7fa;color:var(--feldgrau)}
 .suggestions-list div:hover{background:var(--light-blue);color:white}
 
 /* map */
@@ -60,9 +60,9 @@ header{
 /* controls */
 .controls{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
 .btn{padding:8px 12px;border-radius:999px;border:none;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 6px 18px rgba(20,30,40,0.06)}
-.btn.soft{background:linear-gradient(180deg,#eaf6ff,#d9eeff);color:var(--belgrave)}
-.btn.primary{background:var(--belgrave);color:white}
-.btn.clear{background:#f0f3f7;color:var(--belgrave)}
+.btn.soft{background:linear-gradient(180deg,#eaf6ff,#d9eeff);color:var(--feldgrau)}
+.btn.primary{background:var(--feldgrau);color:white}
+.btn.clear{background:#f0f3f7;color:var(--feldgrau)}
 .btn.reached{background:var(--success);color:white}
 
 /* right column: profile + emergency */
@@ -84,7 +84,7 @@ header{
 .emergency-button{width:62px;height:62px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;box-shadow:0 12px 28px rgba(0,0,0,0.08);cursor:pointer}
 .emergency-button.sos{background:var(--accent)}
 .emergency-button.audio{background:#f7c844;color:#333}
-.emergency-button.pol{background:var(--light-blue);color:var(--belgrave)}
+.emergency-button.pol{background:var(--light-blue);color:var(--feldgrau)}
 .emergency-button.amb{background:var(--success)}
 .emergency-label{font-size:0.8rem;color:var(--muted);margin-top:6px;text-align:center;max-width:80px}
 
@@ -278,7 +278,7 @@ header{
   <div class="card">
     <div class="input-card">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="font-weight:800;color:var(--belgrave)">Safety Mode</div>
+        <div style="font-weight:800;color:var(--feldgrau)">Safety Mode</div>
         <div style="font-size:0.9rem;color:var(--muted)">Hyderabad</div>
       </div>
 
@@ -366,7 +366,7 @@ header{
 <!-- login modal -->
 <div id="loginModal" style="position:fixed;inset:0;background:rgba(10,18,26,0.45);display:none;align-items:center;justify-content:center;z-index:130">
   <div style="background:white;padding:18px;border-radius:12px;max-width:420px;width:94%;box-shadow:var(--shadow)">
-    <h3 style="margin-bottom:8px;color:var(--belgrave)">Login / Signup</h3>
+    <h3 style="margin-bottom:8px;color:var(--feldgrau)">Login / Signup</h3>
     <input id="loginEmail" placeholder="Email" style="width:100%;padding:10px;border-radius:10px;border:1px solid #eef3f6;margin-bottom:8px">
     <input id="loginPhone" placeholder="Phone number" style="width:100%;padding:10px;border-radius:10px;border:1px solid #eef3f6;margin-bottom:8px">
     <input id="loginPass" placeholder="Password" type="password" style="width:100%;padding:10px;border-radius:10px;border:1px solid #eef3f6;margin-bottom:12px">
