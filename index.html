@@ -241,36 +241,17 @@ header{
 </style>
 </head>
 <body>
-<!-- Header with Logo and Login Button -->
+<!-- Header with Logo, Safety Tips link, and Auth Buttons -->
 <header class="app-header">
   <div class="logo">
-    <img src="logo.png" alt="SafeWalk Logo" class="logo-img" />
-    <h1 class="logo-text">SafeWalk</h1>
+    <img src="ICON.jpg" alt="WalkMate Logo" class="logo-img" />
+    <h1 class="logo-text">WalkMate – Safe Walks Together 🔐</h1>
   </div>
-  <button id="loginBtn" class="login-btn">Login / Signup</button>
-</header>
-
-<header>
-  <header class="app-header">
-  <div class="logo">
-    <img src="ICON.jpg" alt="SafeWalk Logo" class="logo-img" />
-    <h1 class="logo-text">SafeWalk  ~ Community night safety companion</h1>
+  <div style="display: flex; align-items: center; gap: 14px;">
+    <a href="#" id="safetyTipsLink" style="color: var(--feldgrau); text-decoration: none; font-weight: 600; font-size: 0.95rem;">Safety Tips</a>
+    <button id="loginBtn" class="login-btn">Login</button>
+    <button id="signupBtn" class="login-btn">Sign Up</button>
   </div>
-</header>
-<!-- Login/Signup Modal -->
-<div id="loginModal" class="login-modal">
-  <div class="login-modal-content">
-    <h2>Welcome to SafeWalk</h2>
-    <input type="email" placeholder="Email" />
-    <input type="tel" placeholder="Phone Number" />
-    <input type="password" placeholder="Password" />
-    <button class="modal-btn">Login</button>
-    <p class="switch-text">Don't have an account? <a href="#">Sign up</a></p>
-  </div>
-</div>
-
-  <div>🛡️ SafeWalk — Safe Walks Together</div>
-  <button id="loginBtn" onclick="openLogin()">Login / Signup</button>
 </header>
 
 <div class="container">
