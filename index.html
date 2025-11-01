@@ -181,10 +181,19 @@ body{padding-top:70px}
 }
 
 /* responsive */
-@media (max-width:980px){
-  .container{grid-template-columns:1fr;gap:12px;padding:12px}
-  #map{max-width:100%;height:76vw}
-  .emergency-bar{position:relative;flex-direction:row;justify-content:center}
+@media (max-width:768px){
+  #map{max-width:100%;height:400px}
+  .bottom-nav{width:90%;padding:6px 12px;gap:16px}
+  .nav-item{padding:6px 12px}
+  .nav-item span{font-size:0.75rem}
+  .controls{flex-direction:column}
+  .controls .btn{width:100%;justify-content:center}
+  .login-btn{padding:8px 14px;font-size:0.9rem}
+  h2{font-size:1.5rem!important}
+}
+
+@media (max-width:980px) and (min-width:769px){
+  #map{height:500px}
 }
 
 .app-header {
