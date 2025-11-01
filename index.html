@@ -928,23 +928,19 @@ function showQuickMessage(txt){
 
 /* emergency actions */
 document.getElementById('sosBtn').addEventListener('click', ()=>{
-  // play siren and show last audio link if exists
+  // Play siren
   siren.currentTime = 0; siren.play().catch(()=>{});
-  if(lastAudioBlob || toast.dataset.audiourl){
-    showQuickMessage('SOS sent — last audio attached');
-    // in demo, open the audio in a small popup area (toast already shows audio)
-  } else {
-    showQuickMessage('SOS sent');
-  }
-  // vibrate if supported
-  if(navigator.vibrate) navigator.vibrate([400,200,400]);
-});
 
-document.getElementById('policeBtn').addEventListener('click', ()=>{
-  showQuickMessage('Police notified');
-});
-document.getElementById('ambulanceBtn').addEventListener('click', ()=>{
-  showQuickMessage('Ambulance notified');
+  // Vibrate if supported
+  if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
+
+  // Button pulse animation
+  const btn = document.getElementById('sosBtn');
+  btn.style.animation = 'buttonPulse 1s ease-in-out 2';
+  setTimeout(() => { btn.style.animation = ''; }, 2000);
+
+  // Show modal
+  showSosModal();
 });
 
 /* -------------------------
