@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SafeWalk — Safe Walks Together</title>
+<title>WalkMate – Safe Walks Together</title>
 
 <!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -16,9 +16,9 @@
    THEME COLORS
    ----------------------- */
 :root{
-  --isabelline: #F4F0EC;   /* background */
+  --isabelline: #F3F3E3;   /* background */
   --light-blue: #A7C7E7;   /* soft blue for accents */
-  --belgrave: #1A3D7C;     /* primary text / dark blue */
+  --feldgrau: #606F69;     /* primary text / feldgrau */
   --card: #ffffff;
   --muted: #8b97a6;
   --accent: #ff5b5b;       /* SOS red */
@@ -32,15 +32,7 @@
    BASIC LAYOUT
    ----------------------- */
 *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Helvetica,Arial;margin:0;padding:0}
-body{background:var(--isabelline);color:var(--belgrave);min-height:100vh;display:flex;flex-direction:column}
-header{
-  background:linear-gradient(90deg,var(--belgrave),#2e5aa0);
-  color:white;padding:14px 18px;font-weight:700;font-size:1.15rem;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:var(--shadow)
-}
-#loginBtn{position:absolute;right:14px;top:10px;background:transparent;border:1px solid rgba(255,255,255,0.18);color:white;padding:8px 12px;border-radius:999px;cursor:pointer;font-weight:700}
-
-/* container grid */
-.container{width:100%;max-width:1150px;margin:18px auto;padding:0 16px;display:grid;grid-template-columns:1fr 360px;gap:18px;align-items:start}
+body{background:var(--isabelline);color:var(--feldgrau);min-height:100vh;padding-top:70px}
 
 /* cards */
 .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
@@ -48,9 +40,9 @@ header{
 
 /* inputs & suggestions */
 .row{display:flex;gap:10px}
-.input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid #e6edf3;font-size:0.95rem;background:white;outline:none;color:var(--belgrave)}
+.input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid #e6edf3;font-size:0.95rem;background:white;outline:none;color:var(--feldgrau)}
 .suggestions-list{position:absolute;left:0;right:0;top:44px;background:var(--card);border-radius:8px;box-shadow:0 10px 28px rgba(20,30,40,0.08);max-height:200px;overflow:auto;z-index:90;border:1px solid #eef3f6}
-.suggestions-list div{padding:10px;cursor:pointer;border-bottom:1px solid #f4f7fa;color:var(--belgrave)}
+.suggestions-list div{padding:10px;cursor:pointer;border-bottom:1px solid #f4f7fa;color:var(--feldgrau)}
 .suggestions-list div:hover{background:var(--light-blue);color:white}
 
 /* map */
@@ -59,10 +51,12 @@ header{
 
 /* controls */
 .controls{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
-.btn{padding:8px 12px;border-radius:999px;border:none;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 6px 18px rgba(20,30,40,0.06)}
-.btn.soft{background:linear-gradient(180deg,#eaf6ff,#d9eeff);color:var(--belgrave)}
-.btn.primary{background:var(--belgrave);color:white}
-.btn.clear{background:#f0f3f7;color:var(--belgrave)}
+.btn{padding:8px 12px;border-radius:999px;border:none;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 6px 18px rgba(20,30,40,0.06);transition:all 0.2s ease-out}
+.btn:hover{transform:scale(1.05);box-shadow:0 8px 24px rgba(20,30,40,0.15), 0 0 20px rgba(167,199,231,0.4)}
+.btn:active{transform:scale(0.98)}
+.btn.soft{background:linear-gradient(180deg,#eaf6ff,#d9eeff);color:var(--feldgrau)}
+.btn.primary{background:var(--feldgrau);color:white}
+.btn.clear{background:#f0f3f7;color:var(--feldgrau)}
 .btn.reached{background:var(--success);color:white}
 
 /* right column: profile + emergency */
@@ -84,7 +78,7 @@ header{
 .emergency-button{width:62px;height:62px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;box-shadow:0 12px 28px rgba(0,0,0,0.08);cursor:pointer}
 .emergency-button.sos{background:var(--accent)}
 .emergency-button.audio{background:#f7c844;color:#333}
-.emergency-button.pol{background:var(--light-blue);color:var(--belgrave)}
+.emergency-button.pol{background:var(--light-blue);color:var(--feldgrau)}
 .emergency-button.amb{background:var(--success)}
 .emergency-label{font-size:0.8rem;color:var(--muted);margin-top:6px;text-align:center;max-width:80px}
 
@@ -94,11 +88,104 @@ header{
 /* audio link/toast area */
 .toast{position:fixed;left:16px;bottom:18px;background:var(--card);padding:10px 12px;border-radius:12px;box-shadow:var(--shadow);border:1px solid #eef3f6;display:none;z-index:120}
 
+/* bottom navigation bar */
+.bottom-nav{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card);border-radius:999px;box-shadow:0 12px 40px rgba(20,30,40,0.12);padding:8px 18px;display:flex;gap:24px;z-index:999;animation:navBarSlideUp 0.5s ease-out 0.4s both}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 16px;cursor:pointer;color:var(--feldgrau);transition:all 0.2s ease-out;border-radius:12px}
+.nav-item i{font-size:20px;transition:all 0.2s ease-out}
+.nav-item span{font-size:0.8rem;font-weight:600;transition:all 0.2s ease-out}
+.nav-item:hover i{transform:scale(1.15);color:var(--light-blue)}
+.nav-item.active{color:var(--light-blue)}
+.nav-item.active i{color:var(--light-blue);font-weight:900}
+.nav-item.active span{color:var(--light-blue);font-weight:700}
+
+/* page sections */
+.page-section{display:none;opacity:0}
+.page-section.active{display:block;animation:fadeInUp 0.4s ease-out forwards}
+
+/* ----------------------
+   ANIMATIONS / KEYFRAMES
+   ---------------------- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOutUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes buttonPulse {
+  0% { transform: scale(1); box-shadow: 0 4px 8px rgba(255,91,91,0.3); }
+  50% { transform: scale(1.15); box-shadow: 0 6px 20px rgba(255,91,91,0.6); }
+  100% { transform: scale(1); box-shadow: 0 4px 8px rgba(255,91,91,0.3); }
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes navBarSlideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes ringConnecting {
+  0% { opacity: 0.5; transform: rotate(0deg); }
+  50% { opacity: 1; transform: rotate(180deg); }
+  100% { opacity: 0.5; transform: rotate(360deg); }
+}
+
+@keyframes ringConnected {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
 /* responsive */
-@media (max-width:980px){
-  .container{grid-template-columns:1fr;gap:12px;padding:12px}
-  #map{max-width:100%;height:76vw}
-  .emergency-bar{position:relative;flex-direction:row;justify-content:center}
+@media (max-width:768px){
+  #map{max-width:100%;height:400px}
+  .bottom-nav{width:90%;padding:6px 12px;gap:16px}
+  .nav-item{padding:6px 12px}
+  .nav-item span{font-size:0.75rem}
+  .controls{flex-direction:column}
+  .controls .btn{width:100%;justify-content:center}
+  .login-btn{padding:8px 14px;font-size:0.9rem}
+  h2{font-size:1.5rem!important}
+}
+
+@media (max-width:980px) and (min-width:769px){
+  #map{height:500px}
 }
 
 .app-header {
@@ -130,7 +217,7 @@ header{
   height: 45px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #1A3D7C; /* Belgrave blue border */
+  border: 2px solid #606F69; /* Belgrave blue border */
 }
 
 .logo-text {
@@ -164,7 +251,7 @@ header{
 /* Login Button Styling */
 .login-btn {
   background-color: #a7c7e7; /* light blue */
-  color: #1a3d7c;
+  color: #606F69;
   border: none;
   padding: 10px 18px;
   border-radius: 12px;
@@ -205,7 +292,7 @@ header{
 }
 
 .login-modal-content h2 {
-  color: #1a3d7c;
+  color: #606F69;
   margin-bottom: 15px;
 }
 
@@ -219,7 +306,7 @@ header{
 
 .modal-btn {
   background: #a7c7e7;
-  color: #1a3d7c;
+  color: #606F69;
   border: none;
   border-radius: 10px;
   padding: 10px 20px;
@@ -241,119 +328,183 @@ header{
 </style>
 </head>
 <body>
-<!-- Header with Logo and Login Button -->
+<!-- Header with Logo, Safety Tips link, and Auth Buttons -->
 <header class="app-header">
   <div class="logo">
-    <img src="logo.png" alt="SafeWalk Logo" class="logo-img" />
-    <h1 class="logo-text">SafeWalk</h1>
+    <img src="ICON.jpg" alt="WalkMate Logo" class="logo-img" />
+    <h1 class="logo-text">WalkMate – Safe Walks Together 🔐</h1>
   </div>
-  <button id="loginBtn" class="login-btn">Login / Signup</button>
-</header>
-
-<header>
-  <header class="app-header">
-  <div class="logo">
-    <img src="ICON.jpg" alt="SafeWalk Logo" class="logo-img" />
-    <h1 class="logo-text">SafeWalk  ~ Community night safety companion</h1>
+  <div style="display: flex; align-items: center; gap: 14px;">
+    <a href="#" id="safetyTipsLink" style="color: var(--feldgrau); text-decoration: none; font-weight: 600; font-size: 0.95rem;">Safety Tips</a>
+    <button id="loginBtn" class="login-btn">Login</button>
+    <button id="signupBtn" class="login-btn">Sign Up</button>
   </div>
 </header>
-<!-- Login/Signup Modal -->
-<div id="loginModal" class="login-modal">
-  <div class="login-modal-content">
-    <h2>Welcome to SafeWalk</h2>
-    <input type="email" placeholder="Email" />
-    <input type="tel" placeholder="Phone Number" />
-    <input type="password" placeholder="Password" />
-    <button class="modal-btn">Login</button>
-    <p class="switch-text">Don't have an account? <a href="#">Sign up</a></p>
-  </div>
-</div>
 
-  <div>🛡️ SafeWalk — Safe Walks Together</div>
-  <button id="loginBtn" onclick="openLogin()">Login / Signup</button>
-</header>
+<!-- HOME PAGE -->
+<div id="homePage" class="page-section active">
+  <div style="max-width:700px;margin:80px auto 100px;padding:0 20px">
+    <h2 style="text-align:center;color:var(--feldgrau);margin-bottom:24px;font-size:1.8rem">WalkMate – Safe Walks Together 🔐</h2>
 
-<div class="container">
-  <!-- LEFT: map + inputs -->
-  <div class="card">
-    <div class="input-card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="font-weight:800;color:var(--belgrave)">Safety Mode</div>
+    <div class="card" style="padding:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div style="font-weight:800;color:var(--feldgrau)">Safety Mode</div>
         <div style="font-size:0.9rem;color:var(--muted)">Hyderabad</div>
       </div>
 
-      <!-- inputs -->
-      <div class="row" style="position:relative">
-        <div style="flex:1;position:relative">
+      <!-- From/To Inputs -->
+      <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+        <div style="flex:1;position:relative;min-width:200px">
           <input id="fromInput" class="input" placeholder="From (type street / shop / lane)">
           <div id="fromSug" class="suggestions-list" style="display:none"></div>
         </div>
-        <div style="flex:1;position:relative">
+        <div style="flex:1;position:relative;min-width:200px">
           <input id="toInput" class="input" placeholder="To (type street / shop / lane)">
           <div id="toSug" class="suggestions-list" style="display:none"></div>
         </div>
       </div>
 
-      <!-- map -->
+      <!-- Map -->
       <div class="map-wrapper"><div id="map"></div></div>
 
-      <!-- controls -->
+      <!-- Walk Timer (hidden by default) -->
+      <div id="walkTimer" style="display:none;text-align:center;margin:12px 0;font-size:1.5rem;font-weight:700;color:var(--feldgrau)">00:00</div>
+
+      <!-- Action Buttons -->
       <div class="controls">
-        <button class="btn soft" id="startBtn"><i class="fa-solid fa-walking"></i> Start</button>
-        <button class="btn primary" id="shareBtn"><i class="fa-solid fa-share-nodes"></i> Share</button>
-        <button class="btn clear" id="clearBtn"><i class="fa-solid fa-xmark"></i> Clear</button>
-        <button class="btn reached" id="reachedBtn"><i class="fa-solid fa-flag-checkered"></i> Reach</button>
+        <button class="btn soft" id="startBtn"><i class="fa-solid fa-person-walking"></i> Start Walk</button>
+        <button class="btn" id="sosBtn" style="background:var(--accent);color:white"><i class="fa-solid fa-bell"></i> SOS</button>
+        <button class="btn primary" id="shareBtn"><i class="fa-solid fa-share-nodes"></i> Share Location</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- RIGHT: profile + emergency + history -->
-  <div style="display:flex;flex-direction:column;gap:12px">
-    <div class="profile card">
-      <h3>Your Profile</h3>
-      <div style="font-size:0.9rem;color:var(--muted);margin-bottom:8px">Emergency Contacts (stored locally)</div>
-      <div class="contact-row"><input id="ec1" placeholder="Emergency contact 1 (name + number)"></div>
-      <div class="contact-row"><input id="ec2" placeholder="Emergency contact 2 (name + number)"></div>
+<!-- HISTORY PAGE -->
+<div id="historyPage" class="page-section">
+  <div style="max-width:800px;margin:80px auto 100px;padding:0 20px">
+    <h2 style="text-align:center;color:var(--feldgrau);margin-bottom:24px">Walk History</h2>
+    <div id="historyList" class="card" style="padding:20px">
+      <!-- history entries will be appended here -->
+    </div>
+  </div>
+</div>
 
-      <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
-        <button class="btn soft" onclick="saveProfile()">Save</button>
-        <div style="margin-left:auto">
-          <div style="font-size:0.85rem;color:var(--muted);margin-bottom:6px">Connect Ring</div>
-          <div class="ring-row"><div id="ringToggle" class="toggle" onclick="toggleRing()"><div class="knob"></div></div><div id="ringState" style="font-weight:700;color:#666;margin-left:8px">Disconnected</div></div>
+<!-- PROFILE PAGE -->
+<div id="profilePage" class="page-section">
+  <div style="max-width:700px;margin:80px auto 100px;padding:0 20px">
+    <h2 style="text-align:center;color:var(--feldgrau);margin-bottom:24px">Your Profile</h2>
+
+    <div class="card" style="padding:24px">
+      <!-- Profile Picture -->
+      <div style="text-align:center;margin-bottom:24px">
+        <div style="width:120px;height:120px;border-radius:50%;background:#e8f0f8;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid var(--light-blue)">
+          <img id="profilePic" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none">
+          <i id="profilePlaceholder" class="fa-solid fa-user" style="font-size:50px;color:var(--muted)"></i>
+        </div>
+        <input type="file" id="profilePicInput" accept="image/*" style="display:none">
+        <button class="btn soft" onclick="document.getElementById('profilePicInput').click()">Change Photo</button>
+      </div>
+
+      <!-- User Info -->
+      <div style="margin-bottom:20px">
+        <label style="display:block;font-weight:600;color:var(--feldgrau);margin-bottom:6px">Name</label>
+        <input id="userName" class="input" placeholder="Enter your name" disabled>
+      </div>
+      <div style="margin-bottom:20px">
+        <label style="display:block;font-weight:600;color:var(--feldgrau);margin-bottom:6px">Email</label>
+        <input id="userEmail" class="input" placeholder="Enter your email" disabled>
+      </div>
+
+      <!-- Emergency Contacts -->
+      <h3 style="color:var(--feldgrau);margin:24px 0 12px">Emergency Contacts</h3>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-weight:600;color:var(--feldgrau);margin-bottom:6px;font-size:0.9rem">Emergency Contact 1</label>
+        <input id="ec1" class="input" placeholder="Name, Phone Number" disabled>
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-weight:600;color:var(--feldgrau);margin-bottom:6px;font-size:0.9rem">Emergency Contact 2</label>
+        <input id="ec2" class="input" placeholder="Name, Phone Number" disabled>
+      </div>
+      <div style="margin-bottom:20px">
+        <label style="display:block;font-weight:600;color:var(--feldgrau);margin-bottom:6px;font-size:0.9rem">Emergency Contact 3</label>
+        <input id="ec3" class="input" placeholder="Name, Phone Number" disabled>
+      </div>
+
+      <button id="editProfileBtn" class="btn primary" onclick="toggleEditProfile()">Edit Contacts</button>
+
+      <!-- Ring Connectivity -->
+      <div style="margin-top:32px;padding-top:24px;border-top:1px solid #e8f0f8">
+        <h3 style="color:var(--feldgrau);margin-bottom:8px">Safety Ring</h3>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px">Future hardware integration ready</p>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div id="ringToggle" class="toggle" onclick="toggleRing()"><div class="knob"></div></div>
+          <div id="ringState" style="font-weight:700;color:#666">Disconnected</div>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="history card">
-      <h3>Recent Sessions</h3>
-      <div id="historyList">
-        <!-- history entries will be appended here -->
+<!-- SAFETY TIPS PAGE -->
+<div id="safetyTipsPage" class="page-section">
+  <div style="max-width:1000px;margin:80px auto 100px;padding:0 20px">
+    <h2 style="text-align:center;color:var(--feldgrau);margin-bottom:32px">Safety Tips for Night Walks</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
+      <!-- Tip Cards -->
+      <div class="card safety-tip-card" style="padding:20px;animation:cardEnter 0.5s ease-out forwards">
+        <div style="font-size:2.5rem;margin-bottom:12px">🔦</div>
+        <h3 style="color:var(--feldgrau);margin-bottom:10px">Stay in Well-Lit Areas</h3>
+        <p style="color:var(--muted);line-height:1.6">Choose routes with good street lighting. Avoid shortcuts through dark alleys or isolated areas. Well-lit paths make you more visible and safer.</p>
+      </div>
+
+      <div class="card safety-tip-card" style="padding:20px;animation:cardEnter 0.5s ease-out 0.1s forwards;opacity:0">
+        <div style="font-size:2.5rem;margin-bottom:12px">📱</div>
+        <h3 style="color:var(--feldgrau);margin-bottom:10px">Share Your Location</h3>
+        <p style="color:var(--muted);line-height:1.6">Always let someone know where you're going and when you expect to arrive. Use location sharing features to keep trusted contacts informed.</p>
+      </div>
+
+      <div class="card safety-tip-card" style="padding:20px;animation:cardEnter 0.5s ease-out 0.2s forwards;opacity:0">
+        <div style="font-size:2.5rem;margin-bottom:12px">👁️</div>
+        <h3 style="color:var(--feldgrau);margin-bottom:10px">Walk with Confidence</h3>
+        <p style="color:var(--muted);line-height:1.6">Stay alert and aware of your surroundings. Walk with purpose and confidence. Avoid distractions like phone use while walking.</p>
+      </div>
+
+      <div class="card safety-tip-card" style="padding:20px;animation:cardEnter 0.5s ease-out 0.3s forwards;opacity:0">
+        <div style="font-size:2.5rem;margin-bottom:12px">💡</div>
+        <h3 style="color:var(--feldgrau);margin-bottom:10px">Trust Your Instincts</h3>
+        <p style="color:var(--muted);line-height:1.6">If something feels wrong, trust your gut. Change your route, enter a busy place, or call someone. Your instincts are your best defense.</p>
+      </div>
+
+      <div class="card safety-tip-card" style="padding:20px;animation:cardEnter 0.5s ease-out 0.4s forwards;opacity:0">
+        <div style="font-size:2.5rem;margin-bottom:12px">🚨</div>
+        <h3 style="color:var(--feldgrau);margin-bottom:10px">Emergency Contacts Ready</h3>
+        <p style="color:var(--muted);line-height:1.6">Keep emergency numbers saved and easily accessible. Set up quick-dial contacts for trusted friends and family members.</p>
+      </div>
+
+      <div class="card safety-tip-card" style="padding:20px;animation:cardEnter 0.5s ease-out 0.5s forwards;opacity:0">
+        <div style="font-size:2.5rem;margin-bottom:12px">👥</div>
+        <h3 style="color:var(--feldgrau);margin-bottom:10px">Stay Connected</h3>
+        <p style="color:var(--muted);line-height:1.6">Walking with a companion is always safer. If alone, use safety apps or community watch features to stay connected.</p>
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="emergency-bar card" style="padding:12px;align-items:center">
-      <div style="display:flex;flex-direction:column;gap:8px;align-items:center">
-        <div>
-          <div title="SOS" class="emergency-button sos" id="sosBtn"><i class="fa-solid fa-bell" style="font-size:20px"></i></div>
-          <div class="emergency-label">Emergency Alert</div>
-        </div>
-
-        <div>
-          <div title="Audio Record" class="emergency-button audio" id="audioBtn"><i class="fa-solid fa-microphone" style="font-size:18px"></i></div>
-          <div class="emergency-label">Send Last Audio</div>
-        </div>
-
-        <div>
-          <div title="Police" class="emergency-button pol" id="policeBtn"><i class="fa-solid fa-shield-halved" style="font-size:18px"></i></div>
-          <div class="emergency-label">Notify Police</div>
-        </div>
-
-        <div>
-          <div title="Ambulance" class="emergency-button amb" id="ambulanceBtn"><i class="fa-solid fa-ambulance" style="font-size:18px"></i></div>
-          <div class="emergency-label">Call Ambulance</div>
-        </div>
-      </div>
-    </div>
+<!-- BOTTOM NAVIGATION BAR -->
+<div class="bottom-nav">
+  <div class="nav-item active" data-page="homePage">
+    <i class="fa-solid fa-house"></i>
+    <span>Home</span>
+  </div>
+  <div class="nav-item" data-page="historyPage">
+    <i class="fa-solid fa-clock-rotate-left"></i>
+    <span>History</span>
+  </div>
+  <div class="nav-item" data-page="profilePage">
+    <i class="fa-solid fa-user"></i>
+    <span>Profile</span>
   </div>
 </div>
 
@@ -363,21 +514,125 @@ header{
 <!-- audio & siren -->
 <audio id="siren" preload="auto"><source src="https://www.soundjay.com/mechanical/sounds/siren-01.mp3" type="audio/mpeg"></audio>
 
-<!-- login modal -->
-<div id="loginModal" style="position:fixed;inset:0;background:rgba(10,18,26,0.45);display:none;align-items:center;justify-content:center;z-index:130">
-  <div style="background:white;padding:18px;border-radius:12px;max-width:420px;width:94%;box-shadow:var(--shadow)">
-    <h3 style="margin-bottom:8px;color:var(--belgrave)">Login / Signup</h3>
-    <input id="loginEmail" placeholder="Email" style="width:100%;padding:10px;border-radius:10px;border:1px solid #eef3f6;margin-bottom:8px">
-    <input id="loginPhone" placeholder="Phone number" style="width:100%;padding:10px;border-radius:10px;border:1px solid #eef3f6;margin-bottom:8px">
-    <input id="loginPass" placeholder="Password" type="password" style="width:100%;padding:10px;border-radius:10px;border:1px solid #eef3f6;margin-bottom:12px">
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button class="btn clear" onclick="closeLogin()">Cancel</button>
-      <button class="btn primary" onclick="saveLogin()">Save</button>
+<!-- Login/Signup Modal -->
+<div id="loginModal" style="position:fixed;inset:0;background:rgba(10,18,26,0.45);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:2000">
+  <div style="background:white;padding:28px;border-radius:16px;max-width:420px;width:94%;box-shadow:var(--shadow);animation:fadeIn 0.3s ease-out">
+    <h3 id="modalTitle" style="margin-bottom:18px;color:var(--feldgrau);font-size:1.5rem;text-align:center">Login to WalkMate</h3>
+
+    <div id="nameField" style="display:none;margin-bottom:12px">
+      <input id="loginName" placeholder="Enter your name" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--feldgrau);box-sizing:border-box">
     </div>
+
+    <div style="margin-bottom:12px">
+      <input id="loginEmail" placeholder="Enter your email" type="email" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--feldgrau);box-sizing:border-box">
+    </div>
+
+    <div style="margin-bottom:16px">
+      <input id="loginPass" placeholder="Enter your password" type="password" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--feldgrau);box-sizing:border-box">
+    </div>
+
+    <button id="authSubmitBtn" class="btn primary" onclick="handleAuth()" style="width:100%;justify-content:center;background:var(--light-blue);color:var(--feldgrau);margin-bottom:12px">Login</button>
+
+    <p id="switchText" style="text-align:center;font-size:0.9rem;color:var(--muted);cursor:pointer" onclick="switchAuthMode()">Don't have an account? <span style="color:var(--light-blue);font-weight:600">Sign Up</span></p>
+  </div>
+</div>
+
+<!-- SOS Modal -->
+<div id="sosModal" style="position:fixed;inset:0;background:rgba(10,18,26,0.5);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:2000">
+  <div style="background:white;padding:32px;border-radius:16px;max-width:400px;width:90%;box-shadow:var(--shadow);text-align:center;animation:fadeIn 0.3s ease-out">
+    <div style="font-size:3rem;margin-bottom:16px">🚨</div>
+    <h3 style="color:var(--feldgrau);margin-bottom:12px;font-size:1.4rem">SOS Sent!</h3>
+    <p id="sosMessage" style="color:var(--muted);margin-bottom:20px;line-height:1.6"></p>
+    <button class="btn primary" onclick="closeSosModal()" style="background:var(--accent);color:white">OK</button>
   </div>
 </div>
 
 <script>
+/* ============================
+   PAGE NAVIGATION
+   ============================ */
+let currentAuthMode = 'login'; // 'login' or 'signup'
+
+// Page switching
+function switchPage(pageId) {
+  document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+
+  // Load data when switching to certain pages
+  if(pageId === 'profilePage') loadProfileData();
+  if(pageId === 'historyPage') renderHistory();
+}
+
+// Nav bar click handlers
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    switchPage(item.dataset.page);
+  });
+});
+
+// Safety Tips link handler
+document.getElementById('safetyTipsLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchPage('safetyTipsPage');
+});
+
+/* ============================
+   AUTH MODAL (Login/Signup)
+   ============================ */
+function openLogin() {
+  currentAuthMode = 'login';
+  document.getElementById('modalTitle').textContent = 'Login to WalkMate';
+  document.getElementById('nameField').style.display = 'none';
+  document.getElementById('authSubmitBtn').textContent = 'Login';
+  document.getElementById('switchText').innerHTML = 'Don\'t have an account? <span style="color:var(--light-blue);font-weight:600">Sign Up</span>';
+  document.getElementById('loginModal').style.display = 'flex';
+}
+
+function openSignup() {
+  currentAuthMode = 'signup';
+  document.getElementById('modalTitle').textContent = 'Sign Up for WalkMate';
+  document.getElementById('nameField').style.display = 'block';
+  document.getElementById('authSubmitBtn').textContent = 'Sign Up';
+  document.getElementById('switchText').innerHTML = 'Already have an account? <span style="color:var(--light-blue);font-weight:600">Login</span>';
+  document.getElementById('loginModal').style.display = 'flex';
+}
+
+function switchAuthMode() {
+  if(currentAuthMode === 'login') openSignup();
+  else openLogin();
+}
+
+function closeLogin() {
+  document.getElementById('loginModal').style.display = 'none';
+}
+
+function handleAuth() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const name = document.getElementById('loginName').value.trim();
+
+  if(currentAuthMode === 'signup' && name) {
+    localStorage.setItem('walkmate_user_name', name);
+    localStorage.setItem('walkmate_user_email', email);
+    showQuickMessage('Account created! Welcome to WalkMate!');
+  } else {
+    localStorage.setItem('walkmate_user_email', email);
+    showQuickMessage('Welcome back!');
+  }
+
+  setTimeout(() => closeLogin(), 1000);
+}
+
+// Header button handlers
+document.getElementById('loginBtn').addEventListener('click', openLogin);
+document.getElementById('signupBtn').addEventListener('click', openSignup);
+
+// Close modal on backdrop click
+document.getElementById('loginModal').addEventListener('click', (e) => {
+  if(e.target.id === 'loginModal') closeLogin();
+});
+
 /* ============================
    Map + Nominatim + OSRM Setup
    ============================ */
@@ -512,6 +767,9 @@ async function requestRoute(){
     routeLayer = L.polyline(coords, {color: '#2b95ff', weight:6, opacity:0.95}).addTo(map);
     map.fitBounds(routeLayer.getBounds(), {padding:[40,40]});
     saveHistoryEntry(fromInput.value, toInput.value, Math.round(j.routes[0].distance/60) + 's');
+
+    // Start walk tracking
+    setTimeout(() => startWalkTracking(), 500);
   } catch(e) {
     // fallback straight line
     if(routeLayer) map.removeLayer(routeLayer);
@@ -519,14 +777,21 @@ async function requestRoute(){
     map.fitBounds(routeLayer.getBounds(), {padding:[40,40]});
     saveHistoryEntry(fromInput.value, toInput.value, '—');
     console.warn('Routing fallback', e);
+
+    // Start walk tracking even with fallback
+    setTimeout(() => startWalkTracking(), 500);
   }
 }
 
 /* controls */
-document.getElementById('startBtn').addEventListener('click', requestRoute);
-document.getElementById('clearBtn').addEventListener('click', clearAll);
-document.getElementById('shareBtn').addEventListener('click', ()=>{ alert('Live location share link created (simulated).'); });
-document.getElementById('reachedBtn').addEventListener('click', ()=>{ alert('You marked yourself as reached.'); });
+document.getElementById('startBtn').addEventListener('click', () => {
+  if(!walkActive) {
+    requestRoute();
+  } else {
+    endWalkTracking();
+  }
+});
+document.getElementById('shareBtn').addEventListener('click', ()=>{ showQuickMessage('Live location share link created (simulated).'); });
 
 /* -------------------------
    Sample POIs for Hyderabad
@@ -567,14 +832,29 @@ function renderHistory(){
   const list = JSON.parse(localStorage.getItem('safewalk_history')||'[]');
   const container = document.getElementById('historyList');
   container.innerHTML = '';
-  if(list.length===0){ container.innerHTML = '<div style="color:var(--muted)">No past sessions yet.</div>'; return; }
+  if(list.length===0){
+    container.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px 20px">No walks yet. Start your first safe walk from the Home page!</div>';
+    return;
+  }
   list.forEach((e, i)=>{
     const el = document.createElement('div');
-    el.style.padding = '10px 0'; el.style.borderBottom = '1px solid #f3f6f8';
-    el.innerHTML = `<strong>${e.date}</strong><div style="font-size:0.95rem;color:var(--muted)">${escapeHtml(e.from)} → ${escapeHtml(e.to)} • ${escapeHtml(e.duration)}</div>`;
+    el.style.padding = '16px 0';
+    el.style.borderBottom = '1px solid #e8f0f8';
     el.style.cursor = 'pointer';
+    el.style.transition = 'all 0.2s ease-out';
+
+    const dateTime = `<div style="font-weight:700;color:var(--feldgrau);margin-bottom:6px;font-size:1rem">${e.date}</div>`;
+    const route = `<div style="font-size:0.95rem;color:var(--muted);line-height:1.5">${escapeHtml(e.from)} → ${escapeHtml(e.to)}</div>`;
+    const duration = `<div style="font-size:0.9rem;color:var(--light-blue);font-weight:600;margin-top:4px">Duration: ${escapeHtml(e.duration)}</div>`;
+
+    el.innerHTML = dateTime + route + duration;
+
+    el.onmouseover = () => { el.style.background = '#f8fafb'; el.style.paddingLeft = '12px'; };
+    el.onmouseout = () => { el.style.background = 'transparent'; el.style.paddingLeft = '0'; };
+
     el.onclick = ()=> {
-      // center map to from location by geocoding first (Nominatim)
+      // Switch to home page and center map
+      switchPage('homePage');
       nominatimSearch(e.from).then(res=>{
         if(res && res[0]) {
           const lat = parseFloat(res[0].lat), lon = parseFloat(res[0].lon);
@@ -589,66 +869,9 @@ function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<',
 renderHistory();
 
 /* -------------------------
-   SOS / emergency / audio
+   SOS / emergency
    ------------------------- */
 const siren = document.getElementById('siren');
-const toast = document.getElementById('toast');
-
-let mediaRecorder = null, audioChunks = [], lastAudioBlob = null, recording = false;
-const audioBtn = document.getElementById('audioBtn');
-
-audioBtn.addEventListener('click', async ()=>{
-  // toggle recording: start -> stop
-  try {
-    if(!recording){
-      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-      mediaRecorder = new MediaRecorder(stream);
-      audioChunks = [];
-      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-      mediaRecorder.onstop = () => {
-        lastAudioBlob = new Blob(audioChunks, {type:'audio/webm'});
-        showToastWithAudio(lastAudioBlob);
-      };
-      mediaRecorder.start();
-      recording = true;
-      audioBtn.style.transform = 'scale(0.96)';
-      audioBtn.title = 'Recording... (auto stops in 30s)';
-      // auto-stop 30s
-      setTimeout(()=>{ if(mediaRecorder && mediaRecorder.state==='recording') mediaRecorder.stop(); recording=false; audioBtn.style.transform=''; audioBtn.title='Recorded'; }, 30000);
-      showQuickMessage('Recording started (will auto-stop in 30s)');
-    } else {
-      if(mediaRecorder && mediaRecorder.state==='recording') mediaRecorder.stop();
-      recording = false;
-      audioBtn.style.transform='';
-      audioBtn.title='Recorded';
-      showQuickMessage('Recording stopped');
-    }
-  } catch(err){
-    console.warn('audio error', err);
-    alert('Microphone access denied or not available.');
-  }
-});
-
-function showToastWithAudio(blob){
-  const url = URL.createObjectURL(blob);
-  toast.style.display = 'block';
-  toast.innerHTML = `<div style="display:flex;gap:10px;align-items:center"><strong>Last audio:</strong>
-    <audio controls src="${url}" style="max-width:220px"></audio>
-    <button class="btn soft" onclick="downloadAudio()">Download</button></div>`;
-  // store link for SOS send
-  toast.dataset.audiourl = url;
-  setTimeout(()=>{ /* keep toast until next recorded */ }, 10000);
-}
-function downloadAudio(){
-  const url = toast.dataset.audiourl;
-  if(!url) return alert('No audio available');
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'safewalk_audio.webm';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-}
 
 function showQuickMessage(txt){
   const q = document.createElement('div');
@@ -661,72 +884,234 @@ function showQuickMessage(txt){
 
 /* emergency actions */
 document.getElementById('sosBtn').addEventListener('click', ()=>{
-  // play siren and show last audio link if exists
+  // Play siren
   siren.currentTime = 0; siren.play().catch(()=>{});
-  if(lastAudioBlob || toast.dataset.audiourl){
-    showQuickMessage('SOS sent — last audio attached');
-    // in demo, open the audio in a small popup area (toast already shows audio)
-  } else {
-    showQuickMessage('SOS sent');
-  }
-  // vibrate if supported
-  if(navigator.vibrate) navigator.vibrate([400,200,400]);
-});
 
-document.getElementById('policeBtn').addEventListener('click', ()=>{
-  showQuickMessage('Police notified');
-});
-document.getElementById('ambulanceBtn').addEventListener('click', ()=>{
-  showQuickMessage('Ambulance notified');
+  // Vibrate if supported
+  if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
+
+  // Button pulse animation
+  const btn = document.getElementById('sosBtn');
+  btn.style.animation = 'buttonPulse 1s ease-in-out 2';
+  setTimeout(() => { btn.style.animation = ''; }, 2000);
+
+  // Show modal
+  showSosModal();
 });
 
 /* -------------------------
-   profile, ring, login
+   PROFILE MANAGEMENT
    ------------------------- */
-function saveProfile(){
-  const e1 = document.getElementById('ec1').value.trim();
-  const e2 = document.getElementById('ec2').value.trim();
-  localStorage.setItem('safewalk_ec1', e1);
-  localStorage.setItem('safewalk_ec2', e2);
-  showQuickMessage('Profile saved');
-}
-function toggleRing(){
-  const t = document.getElementById('ringToggle'), s = document.getElementById('ringState');
-  t.classList.toggle('active');
-  s.innerText = t.classList.contains('active') ? 'Connected' : 'Disconnected';
-  s.style.color = t.classList.contains('active') ? 'var(--success)' : '#666';
-}
+let profileEditMode = false;
 
-/* login modal */
-function openLogin(){ document.getElementById('loginModal').style.display='flex'; }
-function closeLogin(){ document.getElementById('loginModal').style.display='none'; }
-function saveLogin(){
-  const e = document.getElementById('loginEmail').value.trim();
-  const p = document.getElementById('loginPhone').value.trim();
-  // store locally for demo
-  localStorage.setItem('safewalk_user', JSON.stringify({email:e, phone:p}));
-  showQuickMessage('Account saved');
-  closeLogin();
+function loadProfileData() {
+  document.getElementById('userName').value = localStorage.getItem('walkmate_user_name') || '';
+  document.getElementById('userEmail').value = localStorage.getItem('walkmate_user_email') || '';
+  document.getElementById('ec1').value = localStorage.getItem('safewalk_ec1') || '';
+  document.getElementById('ec2').value = localStorage.getItem('safewalk_ec2') || '';
+  document.getElementById('ec3').value = localStorage.getItem('safewalk_ec3') || '';
+
+  const picData = localStorage.getItem('walkmate_profile_pic');
+  if(picData) {
+    document.getElementById('profilePic').src = picData;
+    document.getElementById('profilePic').style.display = 'block';
+    document.getElementById('profilePlaceholder').style.display = 'none';
+  }
 }
 
-  const loginBtn = document.getElementById('loginBtn');
-  const loginModal = document.getElementById('loginModal');
+function toggleEditProfile() {
+  profileEditMode = !profileEditMode;
+  const btn = document.getElementById('editProfileBtn');
 
-  loginBtn.addEventListener('click', () => {
-    loginModal.style.display = 'flex';
-  });
+  if(profileEditMode) {
+    document.getElementById('userName').disabled = false;
+    document.getElementById('userEmail').disabled = false;
+    document.getElementById('ec1').disabled = false;
+    document.getElementById('ec2').disabled = false;
+    document.getElementById('ec3').disabled = false;
+    btn.textContent = 'Save';
+  } else {
+    // Save all fields
+    localStorage.setItem('walkmate_user_name', document.getElementById('userName').value.trim());
+    localStorage.setItem('walkmate_user_email', document.getElementById('userEmail').value.trim());
+    localStorage.setItem('safewalk_ec1', document.getElementById('ec1').value.trim());
+    localStorage.setItem('safewalk_ec2', document.getElementById('ec2').value.trim());
+    localStorage.setItem('safewalk_ec3', document.getElementById('ec3').value.trim());
 
-  // Close modal when clicking outside
-  window.addEventListener('click', (e) => {
-    if (e.target === loginModal) {
-      loginModal.style.display = 'none';
+    document.getElementById('userName').disabled = true;
+    document.getElementById('userEmail').disabled = true;
+    document.getElementById('ec1').disabled = true;
+    document.getElementById('ec2').disabled = true;
+    document.getElementById('ec3').disabled = true;
+    btn.textContent = 'Edit Contacts';
+    showQuickMessage('Profile saved');
+  }
+}
+
+// Profile picture upload
+document.getElementById('profilePicInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const dataUrl = ev.target.result;
+    localStorage.setItem('walkmate_profile_pic', dataUrl);
+    document.getElementById('profilePic').src = dataUrl;
+    document.getElementById('profilePic').style.display = 'block';
+    document.getElementById('profilePlaceholder').style.display = 'none';
+    showQuickMessage('Profile picture updated');
+  };
+  reader.readAsDataURL(file);
+});
+
+/* -------------------------
+   RING CONNECTIVITY
+   ------------------------- */
+let ringConnecting = false;
+
+function toggleRing() {
+  const toggle = document.getElementById('ringToggle');
+  const state = document.getElementById('ringState');
+
+  if(toggle.classList.contains('active')) {
+    // Disconnect
+    toggle.classList.remove('active');
+    state.textContent = 'Disconnected';
+    state.style.color = '#666';
+    localStorage.setItem('walkmate_ring_connected', 'false');
+  } else {
+    // Connect with animation
+    if(ringConnecting) return;
+    ringConnecting = true;
+
+    state.textContent = 'Connecting...';
+    state.style.color = 'var(--light-blue)';
+
+    setTimeout(() => {
+      toggle.classList.add('active');
+      state.textContent = 'Connected';
+      state.style.color = 'var(--success)';
+      ringConnecting = false;
+      localStorage.setItem('walkmate_ring_connected', 'true');
+      showQuickMessage('Ring connected');
+    }, 1500);
+  }
+}
+
+// Load ring state on page load
+if(localStorage.getItem('walkmate_ring_connected') === 'true') {
+  document.getElementById('ringToggle').classList.add('active');
+  document.getElementById('ringState').textContent = 'Connected';
+  document.getElementById('ringState').style.color = 'var(--success)';
+}
+
+/* -------------------------
+   ENHANCED SOS
+   ------------------------- */
+function showSosModal() {
+  const ec1 = localStorage.getItem('safewalk_ec1');
+  const ec2 = localStorage.getItem('safewalk_ec2');
+  const ec3 = localStorage.getItem('safewalk_ec3');
+
+  let contactsList = '';
+  if(ec1) contactsList += ec1.split(',')[0] + ', ';
+  if(ec2) contactsList += ec2.split(',')[0] + ', ';
+  if(ec3) contactsList += ec3.split(',')[0];
+  contactsList = contactsList.replace(/,\s*$/, '');
+
+  const message = contactsList
+    ? `Your emergency contacts have been alerted with your location:<br><strong>${contactsList}</strong>`
+    : 'No emergency contacts set. Add them in your Profile.';
+
+  document.getElementById('sosMessage').innerHTML = message;
+  document.getElementById('sosModal').style.display = 'flex';
+  setTimeout(() => closeSosModal(), 5000);
+}
+
+function closeSosModal() {
+  document.getElementById('sosModal').style.display = 'none';
+}
+
+/* -------------------------
+   ACTIVE WALK TRACKING
+   ------------------------- */
+let walkActive = false;
+let walkStartTime = null;
+let timerInterval = null;
+let gpsInterval = null;
+let userMarker = null;
+let routeCoords = [];
+let currentCoordIndex = 0;
+
+function startWalkTracking() {
+  if(!routeLayer) {
+    alert('Please set a route first by clicking Start Walk');
+    return;
+  }
+
+  walkActive = true;
+  walkStartTime = Date.now();
+  document.getElementById('startBtn').innerHTML = '<i class="fa-solid fa-flag"></i> End Walk';
+  document.getElementById('walkTimer').style.display = 'block';
+
+  // Get route coordinates
+  routeCoords = routeLayer.getLatLngs();
+  currentCoordIndex = 0;
+
+  // Place user marker at start
+  if(userMarker) map.removeLayer(userMarker);
+  userMarker = L.marker(routeCoords[0], {
+    icon: L.divIcon({
+      className: 'user-marker',
+      html: '<div style="width:16px;height:16px;background:#2b95ff;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3)"></div>'
+    })
+  }).addTo(map);
+
+  // Timer update
+  timerInterval = setInterval(() => {
+    const elapsed = Date.now() - walkStartTime;
+    const minutes = Math.floor(elapsed / 60000);
+    const seconds = Math.floor((elapsed % 60000) / 1000);
+    document.getElementById('walkTimer').textContent = `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+  }, 1000);
+
+  // GPS simulation
+  const updateInterval = (routeCoords.length > 0) ? (12 * 60 * 1000) / routeCoords.length : 3000;
+  gpsInterval = setInterval(() => {
+    if(currentCoordIndex < routeCoords.length - 1) {
+      currentCoordIndex++;
+      userMarker.setLatLng(routeCoords[currentCoordIndex]);
+      map.panTo(routeCoords[currentCoordIndex]);
+    } else {
+      endWalkTracking(true);
     }
-  });
+  }, updateInterval);
+}
 
+function endWalkTracking(completed = false) {
+  if(!walkActive) return;
 
+  clearInterval(timerInterval);
+  clearInterval(gpsInterval);
+
+  const elapsed = Date.now() - walkStartTime;
+  const duration = Math.floor(elapsed / 1000) + 's';
+
+  if(completed) {
+    showQuickMessage('You\'ve arrived! Walk completed.');
+  }
+
+  walkActive = false;
+  document.getElementById('startBtn').innerHTML = '<i class="fa-solid fa-person-walking"></i> Start Walk';
+  document.getElementById('walkTimer').style.display = 'none';
+
+  // Keep walk in history (already saved by requestRoute)
+}
 
 /* small helper: populate history on load */
 renderHistory();
+loadProfileData();
 
 /* =========================
    Utility for escape and safe display (already above)
